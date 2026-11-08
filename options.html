@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>台股跑馬燈設定</title>
+  <link rel="stylesheet" href="ui.css">
+</head>
+<body>
+  <main class="container">
+    <header class="header">
+      <div class="logo" data-icon="trend"></div>
+      <div>
+        <h1>台股跑馬燈設定</h1>
+        <p>變更會自動儲存，並立即套用到所有分頁</p>
+      </div>
+      <div class="spacer"></div>
+      <span id="toast" class="toast" role="status" aria-live="polite" data-icon="check">已儲存</span>
+      <a class="btn ghost" href="welcome.html" data-icon="book">新手教學</a>
+    </header>
+
+    <section class="card" aria-labelledby="h-preview">
+      <h2 id="h-preview">即時預覽</h2>
+      <p class="desc">範例資料，滑鼠移上去可以暫停捲動</p>
+      <div id="preview"></div>
+    </section>
+
+    <section class="card" aria-labelledby="h-symbols">
+      <h2 id="h-symbols" data-icon="list">自選股</h2>
+      <p class="desc">輸入股票名稱或代號搜尋，上市、上櫃、ETF、加權指數、櫃買指數都可以</p>
+      <div id="picker"></div>
+      <p class="note-box"><strong>更新頻率：盤中每 1 分鐘更新一次，不是逐筆即時。</strong>數字一段時間沒跳動是正常的；跑馬燈右側會顯示最後更新時間，盤後顯示「收盤」。</p>
+    </section>
+
+    <section class="card" aria-labelledby="h-pos">
+      <h2 id="h-pos" data-icon="layout">顯示位置</h2>
+      <p class="desc">左右兩側會以直向窄欄由下往上捲動</p>
+      <div class="seg" role="radiogroup" aria-labelledby="h-pos">
+        <label><input type="radio" name="position" value="top" data-key="position"><span><div class="mini top"><i></i></div>上方</span></label>
+        <label><input type="radio" name="position" value="bottom" data-key="position"><span><div class="mini bottom"><i></i></div>下方</span></label>
+        <label><input type="radio" name="position" value="left" data-key="position"><span><div class="mini left"><i></i></div>左側</span></label>
+        <label><input type="radio" name="position" value="right" data-key="position"><span><div class="mini right"><i></i></div>右側</span></label>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="h-speed">
+      <h2 id="h-speed" data-icon="gauge">捲動速度</h2>
+      <div class="seg cols-3" role="radiogroup" aria-labelledby="h-speed" style="margin-top:12px">
+        <label><input type="radio" name="speed" value="slow" data-key="speed"><span>慢<small>適合閱讀</small></span></label>
+        <label><input type="radio" name="speed" value="medium" data-key="speed"><span>中<small>預設</small></span></label>
+        <label><input type="radio" name="speed" value="fast" data-key="speed"><span>快<small>股票較多時</small></span></label>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="h-color">
+      <h2 id="h-color" data-icon="palette">漲跌色系</h2>
+      <p class="desc">每檔股票會依當日漲跌顯示對應顏色，並搭配 ▲▼ 符號</p>
+      <div class="seg" role="radiogroup" aria-labelledby="h-color">
+        <label><input type="radio" name="scheme" value="tw" data-key="scheme"><span>台股慣例<small>紅漲綠跌</small><div class="pair" id="pair-tw"></div></span></label>
+        <label><input type="radio" name="scheme" value="us" data-key="scheme"><span>美股慣例<small>綠漲紅跌</small><div class="pair" id="pair-us"></div></span></label>
+      </div>
+      <span class="field-label">自訂色號</span>
+      <div class="colors">
+        <label class="color-row"><span class="name">紅色系・文字</span><input type="color" data-key="redText"></label>
+        <label class="color-row"><span class="name">紅色系・底色</span><input type="color" data-key="redBg"></label>
+        <label class="color-row"><span class="name">綠色系・文字</span><input type="color" data-key="greenText"></label>
+        <label class="color-row"><span class="name">綠色系・底色</span><input type="color" data-key="greenBg"></label>
+      </div>
+      <button id="resetColors" class="btn" style="margin-top:12px">恢復預設色號</button>
+    </section>
+
+    <section class="card" aria-labelledby="h-hide">
+      <label class="switch">
+        <span>
+          <h2 id="h-hide" data-icon="eyeOff">防窺模式：滑鼠靠近才顯示</h2>
+          <span class="desc" style="display:block;margin:0">平時完全隱藏，滑鼠移到跑馬燈所在的畫面邊緣才會滑出；移開 0.5 秒後自動收起，整頁濾鏡也會一起隱藏。此模式下滑鼠停在跑馬燈上不會暫停捲動</span>
+        </span>
+        <input type="checkbox" data-key="autoHide" aria-labelledby="h-hide">
+        <span class="track" aria-hidden="true"></span>
+      </label>
+    </section>
+
+    <section class="card" aria-labelledby="h-tint">
+      <label class="switch">
+        <span>
+          <h2 id="h-tint" data-icon="layers">整頁淡色濾鏡</h2>
+          <span class="desc" style="display:block;margin:0">依加權指數漲跌，替整個網頁加上很淡的紅色或綠色色調，不影響點擊</span>
+        </span>
+        <input type="checkbox" data-key="tint" aria-labelledby="h-tint">
+        <span class="track" aria-hidden="true"></span>
+      </label>
+    </section>
+
+    <section class="card" aria-labelledby="h-ex">
+      <h2 id="h-ex" data-icon="ban">排除網站</h2>
+      <p class="desc">在這些網站不顯示跑馬燈，子網域也會一併排除</p>
+      <label class="field-label" for="excluded">網域清單（一行一個）</label>
+      <textarea id="excluded" data-key="excluded" rows="4"></textarea>
+    </section>
+  </main>
+
+  <script src="defaults.js"></script>
+  <script src="ui.js"></script>
+  <script src="options.js"></script>
+</body>
+</html>

@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>歡迎使用台股跑馬燈</title>
+  <link rel="stylesheet" href="ui.css">
+  <style>
+    .stepper { display: flex; gap: 8px; list-style: none; padding: 0; margin: 0 0 20px; }
+    .stepper li { flex: 1; display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--subtle); }
+    .stepper li::before { content: attr(data-n); width: 26px; height: 26px; flex: none; border-radius: 50%; display: grid; place-items: center;
+      border: 1.5px solid var(--border); background: #fff; font-weight: 600; transition: background .2s, color .2s, border-color .2s; }
+    .stepper li.done::before { content: "✓"; background: #F1F5F9; border-color: var(--primary); color: var(--primary); }
+    .stepper li.active { color: var(--fg); font-weight: 600; }
+    .stepper li.active::before { background: var(--primary); border-color: var(--primary); color: #fff; }
+    .step { display: none; }
+    .step.active { display: block; animation: enter .3s ease-out; }
+    @keyframes enter { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+    .hero { text-align: center; padding: 8px 0 4px; }
+    .hero h2 { font-size: 26px; margin: 12px 0 8px; display: block; }
+    .hero p { color: var(--muted); max-width: 520px; margin: 0 auto 20px; }
+    .step h2[tabindex="-1"]:focus { outline: none; }
+    .features { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 20px; text-align: left; }
+    .feature { border: 1px solid var(--border); border-radius: 10px; padding: 14px; }
+    .feature h3 { font-size: 14px; display: flex; gap: 8px; align-items: center; margin-bottom: 4px; }
+    .feature p { margin: 0; font-size: 13px; color: var(--muted); }
+    /* 小技巧互動示範 */
+    .demo { position: relative; height: 200px; margin-top: 4px; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; background: #fff; }
+    .demo-chrome { display: flex; align-items: center; gap: 6px; height: 30px; padding: 0 12px; background: #F1F5F9; border-bottom: 1px solid var(--border); }
+    .demo-chrome i { width: 9px; height: 9px; border-radius: 50%; background: #CBD5E1; }
+    .demo-chrome span { margin-left: 10px; flex: 1; max-width: 320px; height: 18px; border-radius: 9px; background: #fff; font-size: 11px; line-height: 18px; padding: 0 10px; color: var(--subtle); }
+    .demo-page { padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+    .demo-page b { display: block; height: 9px; border-radius: 5px; background: #E2E8F0; }
+    .demo-page b:nth-child(1) { width: 45%; height: 14px; } .demo-page b:nth-child(2) { width: 85%; } .demo-page b:nth-child(3) { width: 70%; } .demo-page b:nth-child(4) { width: 60%; }
+    .demo-hint { position: absolute; left: 0; right: 0; bottom: 10px; text-align: center; font-size: 13px; color: var(--muted); animation: nudge 1.4s ease-in-out infinite; }
+    @keyframes nudge { 50% { transform: translateY(4px); } }
+    .demo-bar { position: absolute; left: 0; right: 0; bottom: 0; height: 32px; display: flex; align-items: center; background: rgba(255,255,255,.96);
+      border-top: 1px solid var(--border); box-shadow: 0 -2px 6px rgba(15,23,42,.06); transition: transform .2s ease-out, opacity .2s ease-out; }
+    .demo-bar[hidden] { display: none; }
+    .demo-bar.hide { transform: translateY(100%); opacity: 0; pointer-events: none; }
+    .demo-vp { flex: 1; overflow: hidden; }
+    .demo-bar:hover .preview-track { animation-play-state: paused; }
+    .demo.autohide .demo-bar:hover .preview-track { animation-play-state: running; }
+    .demo-status { font-size: 11px; color: var(--subtle); padding: 0 4px; white-space: nowrap; }
+    .demo-min { all: unset; cursor: pointer; width: 32px; height: 32px; display: grid; place-items: center; color: var(--muted); }
+    .demo-min:hover { background: #F1F5F9; color: var(--fg); }
+    .demo-restore { all: unset; cursor: pointer; position: absolute; right: 10px; bottom: 10px; width: 36px; height: 36px; display: grid; place-items: center;
+      background: #fff; border-radius: 8px; box-shadow: 0 1px 6px rgba(15,23,42,.2); color: #C62828; }
+    .demo-restore[hidden] { display: none; }
+    .demo-min:focus-visible, .demo-restore:focus-visible { box-shadow: 0 0 0 3px rgba(51,65,85,.25); }
+    .tasks { list-style: none; padding: 0; margin: 16px 0 0; display: grid; gap: 10px; }
+    .tasks li { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; transition: border-color .2s, background .2s; }
+    .tasks li p { margin: 2px 0 0; font-size: 13px; color: var(--muted); }
+    .tasks strong { font-size: 14px; }
+    .task-check { width: 22px; height: 22px; flex: none; margin-top: 1px; border-radius: 50%; border: 1.5px solid #CBD5E1; display: grid; place-items: center; transition: background .2s, border-color .2s; }
+    .tasks li.done { border-color: #A7F3D0; background: #F0FDF4; }
+    .tasks li.done .task-check { background: var(--ok); border-color: var(--ok); }
+    .tasks li.done .task-check::after { content: ""; width: 6px; height: 11px; border: solid #fff; border-width: 0 2px 2px 0; transform: translateY(-1px) rotate(45deg); }
+    .demo.small { height: 150px; margin-top: 12px; }
+    .inline-icon { display: inline-flex; vertical-align: -4px; color: var(--fg); }
+    .inline-icon .icon { width: 17px; height: 17px; }
+    .inline-icon.trend { color: #C62828; }
+    .try { font-weight: 500; color: var(--primary) !important; }
+    .celebrate { margin: 0 0 14px; padding: 14px 16px; border-radius: 10px; background: #F0FDF4; border: 1px solid #A7F3D0; color: #065F46; font-size: 14px; animation: pop .4s ease-out; }
+    .celebrate strong { font-size: 16px; margin-right: 6px; }
+    @keyframes pop { from { opacity: 0; transform: scale(.96); } to { opacity: 1; transform: none; } }
+    #fireworks { position: fixed; inset: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 1000; }
+    /* 可手動打勾的任務圓圈 */
+    button.task-check { all: unset; box-sizing: border-box; width: 22px; height: 22px; flex: none; margin-top: 1px; border-radius: 50%; border: 1.5px solid #94A3B8;
+      display: grid; place-items: center; cursor: pointer; transition: background .2s, border-color .2s, box-shadow .2s; }
+    button.task-check:hover { border-color: var(--primary); box-shadow: 0 0 0 4px #F1F5F9; }
+    button.task-check:focus-visible { box-shadow: 0 0 0 3px rgba(51,65,85,.25); }
+    .tasks li.done button.task-check { background: var(--ok); border-color: var(--ok); cursor: default; }
+
+    /* 工具列操作動畫（7 秒循環）：拼圖 → 圖釘 → 點擴充功能圖示 → 開啟設定頁 */
+    .tb-guide { display: flex; gap: 16px; align-items: center; margin-top: 10px; flex-wrap: wrap; }
+    .tb-stage { position: relative; width: 340px; height: 150px; flex: none; border: 1px solid var(--border); border-radius: 10px; background: #fff; overflow: hidden; }
+    .tb-bar { position: absolute; left: 0; right: 0; top: 0; height: 40px; display: flex; align-items: center; gap: 6px; padding: 0 10px; background: #F1F5F9; border-bottom: 1px solid var(--border); }
+    .tb-url { flex: 1; height: 24px; border-radius: 12px; background: #fff; font-size: 11px; line-height: 24px; padding: 0 10px; color: var(--subtle); overflow: hidden; white-space: nowrap; }
+    .tb-btn { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 6px; color: #475569; }
+    .tb-btn .icon { width: 17px; height: 17px; }
+    .tb-ext { color: #C62828; animation: tb-ext 7s infinite; }
+    .tb-avatar { width: 22px; height: 22px; border-radius: 50%; background: #CBD5E1; margin-left: 2px; }
+    .tb-menu { position: absolute; top: 44px; right: 16px; width: 190px; padding: 8px; background: #fff; border: 1px solid var(--border); border-radius: 8px;
+      box-shadow: 0 6px 18px rgba(15,23,42,.14); font-size: 12px; opacity: 0; animation: tb-menu 7s infinite; }
+    .tb-menu-title { color: var(--subtle); font-size: 11px; margin-bottom: 4px; }
+    .tb-menu-row { display: flex; align-items: center; gap: 6px; padding: 4px; border-radius: 4px; background: #F8FAFC; }
+    .tb-mini { color: #C62828; display: flex; } .tb-mini .icon { width: 14px; height: 14px; }
+    .tb-pin { margin-left: auto; display: flex; color: #94A3B8; animation: tb-pin 7s infinite; } .tb-pin .icon { width: 15px; height: 15px; }
+    .tb-result { position: absolute; left: 50%; top: 82px; transform: translateX(-50%); display: flex; align-items: center; gap: 6px; white-space: nowrap;
+      padding: 8px 12px; border-radius: 8px; background: #F0FDF4; border: 1px solid #A7F3D0; color: #065F46; font-size: 12px; font-weight: 500; opacity: 0; animation: tb-result 7s infinite; }
+    .tb-result .icon { width: 15px; height: 15px; }
+    .tb-cursor { position: absolute; left: 0; top: 0; animation: tb-cursor 7s infinite; filter: drop-shadow(0 1px 1px rgba(0,0,0,.25)); }
+    .tb-ripple { position: absolute; width: 28px; height: 28px; margin: -14px 0 0 -14px; border-radius: 50%; background: rgba(51,65,85,.25); opacity: 0; transform: scale(.3); }
+    .tb-ripple.r1 { left: 288px; top: 20px; animation: tb-r1 7s infinite; }
+    .tb-ripple.r2 { left: 303px; top: 88px; animation: tb-r2 7s infinite; }
+    .tb-ripple.r3 { left: 254px; top: 20px; animation: tb-r3 7s infinite; }
+    .tb-steps { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; flex: 1; min-width: 220px; counter-reset: s; }
+    .tb-steps li { counter-increment: s; display: flex; gap: 8px; align-items: baseline; padding: 6px 10px; border-radius: 8px; font-size: 13px; color: var(--muted); border: 1px solid transparent; }
+    .tb-steps li::before { content: counter(s); flex: none; width: 18px; height: 18px; border-radius: 50%; background: #E2E8F0; color: var(--fg); font-size: 11px; font-weight: 600; display: grid; place-items: center; }
+    .tb-steps .s1 { animation: tb-s1 7s infinite; } .tb-steps .s2 { animation: tb-s2 7s infinite; } .tb-steps .s3 { animation: tb-s3 7s infinite; }
+
+    /* 時間軸：0–15% 移到拼圖、18% 點擊、18–44% 選單、32% 移到圖釘、36% 點擊、40% 擴充圖示出現、52% 移到圖示、56% 點擊、58–94% 顯示結果 */
+    @keyframes tb-cursor {
+      0% { transform: translate(170px, 120px); }
+      15%, 20% { transform: translate(285px, 18px); } 17.5% { transform: translate(285px, 18px) scale(.85); }
+      32%, 38% { transform: translate(300px, 86px); } 35.5% { transform: translate(300px, 86px) scale(.85); }
+      52%, 58% { transform: translate(251px, 18px); } 55.5% { transform: translate(251px, 18px) scale(.85); }
+      94% { transform: translate(251px, 18px); } 100% { transform: translate(170px, 120px); }
+    }
+    @keyframes tb-menu { 0%, 17% { opacity: 0; transform: translateY(-4px); } 19%, 43% { opacity: 1; transform: none; } 46%, 100% { opacity: 0; transform: translateY(-4px); } }
+    @keyframes tb-pin { 0%, 35% { color: #94A3B8; } 37%, 100% { color: #0F172A; } }
+    @keyframes tb-ext { 0%, 38% { opacity: 0; transform: scale(.4); } 42%, 95% { opacity: 1; transform: none; } 99%, 100% { opacity: 0; } }
+    @keyframes tb-result { 0%, 57% { opacity: 0; transform: translate(-50%, 6px); } 60%, 93% { opacity: 1; transform: translate(-50%, 0); } 97%, 100% { opacity: 0; } }
+    @keyframes tb-r1 { 0%, 17% { opacity: 0; transform: scale(.3); } 18% { opacity: 1; } 24%, 100% { opacity: 0; transform: scale(1.4); } }
+    @keyframes tb-r2 { 0%, 35% { opacity: 0; transform: scale(.3); } 36% { opacity: 1; } 42%, 100% { opacity: 0; transform: scale(1.4); } }
+    @keyframes tb-r3 { 0%, 55% { opacity: 0; transform: scale(.3); } 56% { opacity: 1; } 62%, 100% { opacity: 0; transform: scale(1.4); } }
+    @keyframes tb-s1 { 0%, 24% { background: #F1F5F9; border-color: #CBD5E1; color: var(--fg); } 26%, 100% { background: none; border-color: transparent; color: var(--muted); } }
+    @keyframes tb-s2 { 0%, 25% { background: none; border-color: transparent; color: var(--muted); } 26%, 44% { background: #F1F5F9; border-color: #CBD5E1; color: var(--fg); } 46%, 100% { background: none; border-color: transparent; color: var(--muted); } }
+    @keyframes tb-s3 { 0%, 45% { background: none; border-color: transparent; color: var(--muted); } 46%, 94% { background: #F1F5F9; border-color: #CBD5E1; color: var(--fg); } 97%, 100% { background: none; border-color: transparent; color: var(--muted); } }
+    @media (prefers-reduced-motion: reduce) {
+      .tb-cursor, .tb-ripple, .tb-menu { display: none; }
+      .tb-ext, .tb-pin, .tb-result, .tb-steps li { animation: none; }
+      .tb-result { opacity: 1; }
+    }
+    @media (max-width: 560px) { .tb-stage { zoom: .7; } }
+
+    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    @media (prefers-reduced-motion: reduce) { .demo-hint { animation: none; } .demo-bar { transition: none; } }
+    .nav { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
+    .note { font-size: 13px; color: var(--subtle); background: #F8FAFC; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; margin-top: 16px; }
+    @media (prefers-reduced-motion: reduce) { .step.active { animation: none; } }
+    @media (max-width: 560px) { .stepper li span { display: none; } .features { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <header class="header">
+      <div class="logo" data-icon="trend"></div>
+      <div>
+        <h1>台股跑馬燈</h1>
+        <p>四個步驟完成設定，之後隨時可以在設定頁調整</p>
+      </div>
+      <div class="spacer"></div>
+      <span id="toast" class="toast" role="status" aria-live="polite" data-icon="check">已儲存</span>
+    </header>
+
+    <ol class="stepper" aria-label="設定進度">
+      <li data-n="1"><span>歡迎</span></li>
+      <li data-n="2"><span>自選股與位置</span></li>
+      <li data-n="3"><span>漲跌色系</span></li>
+      <li data-n="4"><span>小技巧體驗</span></li>
+    </ol>
+
+    <!-- 步驟 1 -->
+    <section class="card step" data-step="1" aria-labelledby="s1">
+      <div class="hero">
+        <h2 id="s1">安裝完成，歡迎使用！</h2>
+        <p>不論切換到哪個分頁，畫面邊緣都會像新聞跑馬燈一樣，持續輪播自選股的價格和當日漲跌（盤中每 1 分鐘更新）。</p>
+      </div>
+      <div id="preview1"></div>
+      <div class="features">
+        <div class="feature"><h3 data-icon="list">自選股</h3><p>上市、上櫃、ETF、加權指數都能加入</p></div>
+        <div class="feature"><h3 data-icon="layout">上下左右</h3><p>跑馬燈可以放在畫面任一側</p></div>
+        <div class="feature"><h3 data-icon="palette">漲跌變色</h3><p>紅漲綠跌或綠漲紅跌，色號可自訂</p></div>
+        <div class="feature"><h3 data-icon="ban">排除網站</h3><p>看 YouTube、Netflix 時自動隱藏</p></div>
+      </div>
+    </section>
+
+    <!-- 步驟 2 -->
+    <section class="card step" data-step="2" aria-labelledby="s2">
+      <h2 id="s2" data-icon="list">加入你的自選股</h2>
+      <p class="desc">輸入股票名稱或代號搜尋，不用記代號，例如「台積」、「元大50」、「2330」</p>
+      <div id="picker"></div>
+
+      <h2 data-icon="layout" style="margin-top:24px">跑馬燈要放在哪裡？</h2>
+      <p class="desc">左右兩側會以直向窄欄由下往上捲動</p>
+      <div class="seg" role="radiogroup" aria-label="顯示位置">
+        <label><input type="radio" name="position" value="top" data-key="position"><span><div class="mini top"><i></i></div>上方</span></label>
+        <label><input type="radio" name="position" value="bottom" data-key="position"><span><div class="mini bottom"><i></i></div>下方</span></label>
+        <label><input type="radio" name="position" value="left" data-key="position"><span><div class="mini left"><i></i></div>左側</span></label>
+        <label><input type="radio" name="position" value="right" data-key="position"><span><div class="mini right"><i></i></div>右側</span></label>
+      </div>
+    </section>
+
+    <!-- 步驟 3 -->
+    <section class="card step" data-step="3" aria-labelledby="s3">
+      <h2 id="s3" data-icon="palette">選擇漲跌色系</h2>
+      <div class="seg" role="radiogroup" aria-label="漲跌色系" style="margin-top:12px">
+        <label><input type="radio" name="scheme" value="tw" data-key="scheme"><span>台股慣例<small>紅漲綠跌</small></span></label>
+        <label><input type="radio" name="scheme" value="us" data-key="scheme"><span>美股慣例<small>綠漲紅跌</small></span></label>
+      </div>
+      <p class="desc" style="margin-top:12px">之後也可以在設定頁自訂每個顏色的色號</p>
+      <div id="preview3" style="margin-top:4px"></div>
+    </section>
+
+    <!-- 步驟 4 -->
+    <section class="card step" data-step="4" aria-labelledby="s4">
+      <h2 id="s4" data-icon="book">小技巧：動手玩玩看</h2>
+      <p class="desc">下面是模擬的瀏覽器畫面，照著任務操作看看，完成的任務會自動打勾</p>
+
+      <div id="celebrate" class="celebrate" role="status" hidden>
+        <strong>全部完成！</strong>你已經學會所有操作，按下方「完成，開始使用」就可以開始看盤了
+      </div>
+
+      <div class="demo" id="demoA"></div>
+      <ol class="tasks">
+        <li data-task="pause">
+          <span class="task-check" aria-hidden="true"></span>
+          <div><strong>暫停捲動</strong><p>把滑鼠移到上面的跑馬燈，捲動會停下來，方便看清楚價格</p></div>
+        </li>
+        <li data-task="minimize">
+          <span class="task-check" aria-hidden="true"></span>
+          <div><strong>最小化與展開</strong><p>按跑馬燈右側的「－」收起來，再點右下角的圖示展開；實際使用時所有分頁會同步收合</p></div>
+        </li>
+        <li data-task="autohide">
+          <span class="task-check" aria-hidden="true"></span>
+          <div style="flex:1;min-width:0">
+            <label class="switch">
+              <span><strong id="w-hide">防窺模式：滑鼠靠近才顯示</strong>
+                <p>打開開關後，下面的跑馬燈會消失；把滑鼠移到示範畫面最下緣它才會滑出來，移開後自動收起，停在上面也會持續捲動。這個開關就是實際設定</p></span>
+              <input type="checkbox" data-key="autoHide" aria-labelledby="w-hide">
+              <span class="track" aria-hidden="true"></span>
+            </label>
+            <div class="demo small" id="demoB"></div>
+          </div>
+        </li>
+        <li data-task="settings">
+          <button type="button" class="task-check manual" id="settingsCheck" aria-label="我已完成「從工具列開啟設定頁」，打勾" title="完成後點這裡打勾"></button>
+          <div style="flex:1;min-width:0"><strong>從工具列開啟設定頁</strong>
+            <p>之後要調整速度、色號、排除網站或整頁濾鏡，都是從 Chrome 右上角的工具列進入設定頁。看下面的動畫，然後在你的瀏覽器實際做一次：</p>
+            <div class="tb-guide">
+              <div class="tb-stage" aria-hidden="true">
+                <div class="tb-bar">
+                  <span class="tb-url">https://www.example.com</span>
+                  <span class="tb-btn tb-ext" data-icon="trend"></span>
+                  <span class="tb-btn tb-puzzle" data-icon="puzzle"></span>
+                  <span class="tb-avatar"></span>
+                </div>
+                <div class="tb-menu">
+                  <div class="tb-menu-title">擴充功能</div>
+                  <div class="tb-menu-row"><span class="tb-mini" data-icon="trend"></span>台股跑馬燈<span class="tb-pin" data-icon="pin"></span></div>
+                </div>
+                <div class="tb-result"><span data-icon="settings"></span>已開啟「台股跑馬燈設定」</div>
+                <span class="tb-ripple r1"></span><span class="tb-ripple r2"></span><span class="tb-ripple r3"></span>
+                <svg class="tb-cursor" viewBox="0 0 24 24" width="20" height="20"><path d="M4 2l16 11.5-7.2 1.3 4 7.6-3 1.6-4-7.6L4 21z" fill="#0F172A" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/></svg>
+              </div>
+              <ol class="tb-steps">
+                <li class="s1"><span>點右上角的 <span class="inline-icon" data-icon="puzzle"></span> 拼圖圖示（擴充功能）</span></li>
+                <li class="s2"><span>在「台股跑馬燈」旁按 <span class="inline-icon" data-icon="pin"></span> 圖釘，把它釘到工具列</span></li>
+                <li class="s3"><span>點工具列上的 <span class="inline-icon trend" data-icon="trend"></span> 圖示，設定頁就會打開</span></li>
+              </ol>
+            </div>
+            <p class="try">實際做一次後，點左側圓圈自己打勾（點了工具列圖示也會自動打勾）</p></div>
+        </li>
+      </ol>
+      <div id="taskLive" class="sr-only" aria-live="polite"></div>
+
+      <div class="note">
+        <strong>報價每 1 分鐘更新一次，不是逐筆即時</strong>，數字一段時間沒跳動是正常的；跑馬燈右側會顯示最後更新時間，盤後則顯示「收盤」與收盤價。<br>
+        Chrome 內建頁面（例如 chrome://、線上應用程式商店）無法顯示跑馬燈，已經開著的分頁要重新整理才會出現。
+      </div>
+    </section>
+
+    <nav class="nav" aria-label="步驟導覽">
+      <button id="prev" class="btn ghost" data-icon="arrowLeft">上一步</button>
+      <div>
+        <a id="skip" class="btn ghost" href="options.html">略過，直接到設定頁</a>
+        <button id="next" class="btn primary">下一步</button>
+      </div>
+    </nav>
+  </main>
+
+  <script src="defaults.js"></script>
+  <script src="ui.js"></script>
+  <script src="welcome.js"></script>
+</body>
+</html>

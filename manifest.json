@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "台股跑馬燈",
+  "version": "0.1.1",
+  "description": "在任何網頁上以跑馬燈輪播自選台股的即時股價與漲跌。",
+  "permissions": ["storage", "alarms"],
+  "host_permissions": ["https://mis.twse.com.tw/*", "https://openapi.twse.com.tw/*", "https://www.tpex.org.tw/*"],
+  "background": { "service_worker": "background.js" },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["defaults.js", "content.js"],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ],
+  "options_ui": { "page": "options.html", "open_in_tab": true },
+  "action": {
+    "default_title": "台股跑馬燈設定",
+    "default_icon": { "16": "icons/icon16.png", "48": "icons/icon48.png", "128": "icons/icon128.png" }
+  },
+  "icons": { "16": "icons/icon16.png", "48": "icons/icon48.png", "128": "icons/icon128.png" }
+}

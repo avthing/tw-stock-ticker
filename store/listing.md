@@ -72,7 +72,7 @@
 本擴充功能為獨立開發的第三方工具，與臺灣證券交易所、證券櫃檯買賣中心無任何關聯。顯示的資訊僅供參考，不構成任何投資建議，投資人應自行判斷並承擔風險。
 
 官方網站與使用教學：https://tw-stock-ticker.pages.dev
-隱私權政策：https://tw-stock-ticker.pages.dev/privacy.html
+隱私權政策：https://tw-stock-ticker.pages.dev/privacy
 原始碼與問題回報：https://github.com/avthing/tw-stock-ticker
 ```
 
@@ -89,7 +89,7 @@
 | 官方網址 | 留空。此欄需先在 Google Search Console 驗證網站擁有權，且 `pages.dev` 子網域通常無法驗證 |
 | 首頁網址 | `https://tw-stock-ticker.pages.dev` |
 | 支援網址 | `https://github.com/avthing/tw-stock-ticker/issues` |
-| 隱私權政策網址（隱私權設定分頁） | `https://tw-stock-ticker.pages.dev/privacy.html` |
+| 隱私權政策網址（隱私權設定分頁） | `https://tw-stock-ticker.pages.dev/privacy` |
 | 成人內容 | 否（不勾選） |
 | 通用宣傳影片 | 留空（選填） |
 

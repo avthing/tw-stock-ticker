@@ -58,8 +58,9 @@
 
 【隱私】
 • 不蒐集、不上傳任何個人資料，沒有帳號、沒有廣告、沒有追蹤
-• 自選股與設定只儲存在你的瀏覽器（chrome.storage），不會傳送給開發者或第三方
-• 只會向證交所與櫃買中心的公開介面請求行情與股票清單
+• 自選股與設定只儲存在你的瀏覽器（chrome.storage），不會傳送給開發者，開發者也沒有任何伺服器
+• 只會向證交所與櫃買中心的公開介面請求行情與股票清單；查詢報價時，請求會包含你自選股的代號
+• 不會讀取、記錄或傳送你瀏覽的網頁內容與瀏覽記錄
 
 【已知限制】
 • Chrome 的限制：chrome:// 頁面、Chrome 線上應用程式商店與內建 PDF 檢視器無法顯示跑馬燈
@@ -71,6 +72,7 @@
 本擴充功能為獨立開發的第三方工具，與臺灣證券交易所、證券櫃檯買賣中心無任何關聯。顯示的資訊僅供參考，不構成任何投資建議，投資人應自行判斷並承擔風險。
 
 官方網站與使用教學：https://tw-stock-ticker.pages.dev
+隱私權政策：https://tw-stock-ticker.pages.dev/privacy.html
 原始碼與問題回報：https://github.com/avthing/tw-stock-ticker
 ```
 
@@ -87,6 +89,7 @@
 | 官方網址 | 留空。此欄需先在 Google Search Console 驗證網站擁有權，且 `pages.dev` 子網域通常無法驗證 |
 | 首頁網址 | `https://tw-stock-ticker.pages.dev` |
 | 支援網址 | `https://github.com/avthing/tw-stock-ticker/issues` |
+| 隱私權政策網址（隱私權設定分頁） | `https://tw-stock-ticker.pages.dev/privacy.html` |
 | 成人內容 | 否（不勾選） |
 | 通用宣傳影片 | 留空（選填） |
 
@@ -100,8 +103,8 @@
 ### 權限使用理由
 | 權限 | 理由（貼進對應欄位） |
 |---|---|
-| `storage` | Stores the user's watchlist and display settings (position, colors, speed, excluded sites) in the browser. |
-| `alarms` | Schedules the once-per-minute quote refresh, which only runs during Taiwan market hours. |
+| `storage` | Saves the user's watchlist and display settings (position, colors, speed, excluded sites) with chrome.storage.sync, and caches the latest quotes, the minimized state and the public stock list with chrome.storage.local. This data stays in the user's browser (and Chrome's own sync, if enabled) and is never sent to the developer. The only thing sent over the network is the stock codes of the watchlist, which go to the public TWSE quote endpoint to fetch prices. |
+| `alarms` | Schedules the periodic quote refresh. The alarm fires once per minute, but the service worker only makes a network request during Taiwan market hours (Mon-Fri 09:00-13:35 Taipei time), plus one catch-up request after the close to show the closing price. |
 | `https://mis.twse.com.tw/*` | Fetches real-time stock quotes from the Taiwan Stock Exchange public market data endpoint. |
 | `https://openapi.twse.com.tw/*`、`https://www.tpex.org.tw/*` | Downloads the public list of listed stocks and ETFs (TWSE and TPEx) so users can search by name or code when building their watchlist. |
 | 內容腳本 `<all_urls>` | The core feature is a ticker bar overlaid on whatever page the user is browsing. It must be injected into all websites; it only draws a UI element, and never reads, collects or modifies page content. Users can exclude specific sites in settings. |

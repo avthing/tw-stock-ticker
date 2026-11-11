@@ -42,8 +42,11 @@
 6. 排除網站、暫停與最小化
 預設排除 youtube.com 與 netflix.com（子網域一併排除），可自行增減。滑鼠移到跑馬燈上會暫停捲動；最小化後所有分頁同步。
 
-7. 新手教學
-安裝後自動開啟教學頁，一步步帶你完成設定。
+7. 盤後模式：收盤後改看三大法人（預設開啟）
+平日 13:35 收盤後，跑馬燈自動隱藏；等證交所公布當日三大法人買賣金額（通常約 15:00～16:30），再於同一位置顯示外資、投信、自營商與合計的買賣超。隔天開盤自動恢復股價，不想隱藏可在設定頁關閉。
+
+8. 新手教學與更新紀錄
+安裝後自動開啟教學頁，一步步帶你完成設定；每次更新到新版本，會自動開啟更新紀錄頁，告訴你改了什麼。
 
 【使用方式】
 1. 安裝後依新手教學頁的指引操作
@@ -52,14 +55,14 @@
 4. 選擇跑馬燈位置、速度與顏色，儲存後即可在網頁上看到跑馬燈
 
 【資料來源與更新頻率】
-• 報價來自臺灣證券交易所公開行情介面（mis.twse.com.tw），股票清單來自證交所與櫃買中心的 OpenAPI
+• 報價來自臺灣證券交易所公開行情介面（mis.twse.com.tw），三大法人買賣金額來自證交所公開統計表（www.twse.com.tw），股票清單來自證交所與櫃買中心的 OpenAPI
 • 僅在盤中（台北時間週一至週五 09:00–13:35）每 1 分鐘更新一次，不是逐筆即時；報價本身約有數秒延遲，跑馬燈右側會顯示最後更新時間
-• 非盤中時顯示上一個交易日的收盤價
+• 收盤後開啟盤後模式時，跑馬燈隱藏並等待三大法人資料公布，公布後顯示買賣超；週末與休市日、或關閉盤後模式時，顯示上一個交易日的收盤價
 
 【隱私】
 • 不蒐集、不上傳任何個人資料，沒有帳號、沒有廣告、沒有追蹤
 • 自選股與設定只儲存在你的瀏覽器（chrome.storage），不會傳送給開發者，開發者也沒有任何伺服器
-• 只會向證交所與櫃買中心的公開介面請求行情與股票清單；查詢報價時，請求會包含你自選股的代號
+• 只會向證交所與櫃買中心的公開介面請求行情、三大法人買賣金額與股票清單；查詢報價時，請求會包含你自選股的代號，查詢三大法人則不含任何個人資訊
 • 不會讀取、記錄或傳送你瀏覽的網頁內容與瀏覽記錄
 
 【已知限制】
@@ -97,14 +100,14 @@
 
 ### 單一用途
 ```
-在使用者瀏覽的網頁上，以跑馬燈顯示使用者自選的台股股價與漲跌。
+在使用者瀏覽的網頁上，以跑馬燈顯示使用者自選的台股股價與漲跌；收盤後改在同一位置顯示當日三大法人買賣超。
 ```
 
 ### 權限使用理由
 | 權限 | 理由（貼進對應欄位） |
 |---|---|
 | `storage` | Saves the user's watchlist and display settings (position, colors, speed, excluded sites) with chrome.storage.sync, and caches the latest quotes, the minimized state and the public stock list with chrome.storage.local. This data stays in the user's browser (and Chrome's own sync, if enabled) and is never sent to the developer. The only thing sent over the network is the stock codes of the watchlist, which go to the public TWSE quote endpoint to fetch prices. |
-| `alarms` | Schedules the periodic quote refresh. The alarm fires once per minute, but the service worker only makes a network request during Taiwan market hours (Mon-Fri 09:00-13:35 Taipei time), plus one catch-up request after the close to show the closing price. |
+| `alarms` | Schedules the periodic refresh. The alarm fires once per minute, but the service worker only makes a quote request during Taiwan market hours (Mon-Fri 09:00-13:35 Taipei time), plus one catch-up request after the close to show the closing price. After the close, when the optional after-hours mode is on, it also checks once per minute whether TWSE has published that day's institutional investors' buy/sell totals (a public statistics table, www.twse.com.tw), and stops as soon as the data for the day is received. |
 | `https://mis.twse.com.tw/*` | Fetches real-time stock quotes from the Taiwan Stock Exchange public market data endpoint. |
 | `https://openapi.twse.com.tw/*`、`https://www.tpex.org.tw/*` | Downloads the public list of listed stocks and ETFs (TWSE and TPEx) so users can search by name or code when building their watchlist. |
 | 內容腳本 `<all_urls>` | The core feature is a ticker bar overlaid on whatever page the user is browsing. It must be injected into all websites; it only draws a UI element, and never reads, collects or modifies page content. Users can exclude specific sites in settings. |

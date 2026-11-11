@@ -1,0 +1,29 @@
+/* 更新紀錄頁專用樣式（方向 C：柔和溫潤）；共用 token 見 ui.css */
+.timeline { margin: 44px 0 0 6px; padding-left: 32px; border-left: 2px solid var(--line); }
+.release { position: relative; margin-bottom: 44px; --tick-top: 15px; }
+.release:last-child { margin-bottom: 0; }
+/* 從時間軸線連到版本標題的短橫線 */
+.release::before { content: ""; position: absolute; left: -32px; top: var(--tick-top); width: 20px; height: 2px; background: var(--line-strong); }
+
+.release h2 { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; font-size: 22px; }
+.release time { font-size: 15px; font-weight: 400; color: var(--subtle); font-variant-numeric: tabular-nums; }
+.release h3 { display: inline-block; margin: 20px 0 8px; padding: 2px 14px; border-radius: var(--pill); background: var(--accent-soft); color: var(--accent-ink); font-size: 14px; font-weight: 700; }
+.release ul { margin: 0; padding-left: 22px; }
+.release li { margin: 8px 0; }
+.release li::marker { color: var(--accent); }
+
+/* 最新版本：放大，並標示「目前版本」 */
+.release:first-of-type { --tick-top: 38px; padding: 28px; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; }
+.release:first-of-type::before { left: -33px; width: 33px; background: var(--accent); }
+.release:first-of-type h2 { font-size: 32px; letter-spacing: .01em; }
+.release:first-of-type h2::after { content: "目前版本"; order: 3; font-size: 14px; font-weight: 700; color: var(--on-accent); background: var(--accent); border-radius: var(--pill); padding: 0 14px; line-height: 28px; }
+.release:first-of-type time { font-size: 16px; }
+.release:first-of-type ul { font-size: 16px; }
+
+@media (max-width: 560px) {
+  .timeline { padding-left: 22px; margin-left: 4px; }
+  .release::before { left: -22px; width: 12px; }
+  .release:first-of-type { padding: 20px 18px; }
+  .release:first-of-type::before { left: -23px; width: 23px; }
+  .release:first-of-type h2 { font-size: 28px; }
+}

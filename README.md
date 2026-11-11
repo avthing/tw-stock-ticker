@@ -1,5 +1,7 @@
 # 台股跑馬燈（Chrome 擴充功能）
 
+目前版本：**v0.2.2**（[下載 zip](https://github.com/avthing/tw-stock-ticker/releases/latest/download/tw-stock-ticker.zip)）
+
 在任何網頁的上、下、左、右側，像新聞跑馬燈一樣輪播自選台股的即時股價與當日漲跌。
 
 官方網站（使用方式、下載安裝）：https://tw-stock-ticker.pages.dev
@@ -12,8 +14,9 @@
 - 整頁淡色濾鏡：依加權指數漲跌替網頁加上淡色調（預設關閉）
 - 防窺模式：平時隱藏，滑鼠移到跑馬燈所在的畫面邊緣才滑出，移開 0.5 秒後自動收起（預設關閉）
 - 排除網站：預設排除 youtube.com、netflix.com，子網域一併排除
+- 盤後模式（預設開啟）：平日 13:35 收盤後隱藏跑馬燈，等證交所公布當日三大法人買賣金額（約 15:00～16:30）再固定顯示一組外資、投信、自營商與合計的買賣超，不再循環捲動；隔天開盤自動恢復股價，週末與休市日不受影響
 - 滑鼠移上去暫停捲動；可以最小化，所有分頁同步
-- 安裝後自動開啟新手教學頁
+- 安裝後自動開啟新手教學頁；更新到新版本時自動開啟更新紀錄頁
 
 ## 安裝（開發版）
 1. 開啟 `chrome://extensions`，打開右上角「開發人員模式」
@@ -25,14 +28,19 @@
 |---|---|
 | `manifest.json` | MV3 設定 |
 | `defaults.js` | 預設值與共用解析函式 |
-| `background.js` | Service worker，每 1 分鐘（僅盤中）抓取證交所 MIS 行情，寫入 `chrome.storage.local` |
-| `content.js` | 在網頁中以 Shadow DOM 繪製跑馬燈 |
+| `background.js` | Service worker，每 1 分鐘（僅盤中）抓取證交所 MIS 行情；收盤後輪詢證交所 BFI82U 三大法人買賣金額，直到取得當日資料；寫入 `chrome.storage.local` |
+| `content.js` | 在網頁中以 Shadow DOM 繪製跑馬燈；盤後模式下負責隱藏與顯示法人買賣超 |
 | `options.html/js` | 設定頁 |
 | `welcome.html/js` | 安裝後的新手教學頁 |
+| `changelog.html/js` | 更新紀錄頁，更新到新版本時自動開啟 |
 | `ui.css` / `ui.js` | 設定頁與教學頁共用的樣式、圖示與預覽元件 |
 
 ## 已知限制
 - `chrome://` 頁面、Chrome 線上應用程式商店、內建 PDF 檢視器無法注入，這是 Chrome 的限制
 - 資料來源是證交所 MIS 非官方介面，報價延遲約 5 秒；請求太頻繁可能被暫時封鎖（目前 1 分鐘更新一次，不是逐筆即時；跑馬燈右側顯示最後更新時間）
+- 盤後模式靠 MIS 回傳的資料日期判斷今天是否為交易日，平日休市日不會進入盤後模式（維持顯示收盤價）；三大法人公布時間依證交所而定，公布前跑馬燈完全隱藏
 - 換頁時跑馬燈會從頭開始捲動
+
+## 發版規則
+每次 bump `manifest.json` 版本號，要同步在 `changelog.html` 最上方新增該版本的 `<article class="card release">`（最上面那篇會自動標示「目前版本」），並一併更新 `site/index.html` 的下載版本文字。
 - 安裝前已經開著的分頁，要重新整理才會出現跑馬燈

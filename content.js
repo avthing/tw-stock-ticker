@@ -5,9 +5,10 @@
   const FLAT = { text: '#616161', bg: '#F2F2F2' };
 
   let settings = await chrome.storage.sync.get(DEFAULTS);
-  let data = await chrome.storage.local.get({ quotes: [], index: null, closed: false, error: null, updatedAt: 0, minimized: false });
+  let data = await chrome.storage.local.get({ quotes: [], index: null, closed: false, error: null, updatedAt: 0, minimized: false, quoteDate: null, inst: null });
 
   let host = null;
+  let renderedKey = ''; // 上次 render 時的盤後狀態，用來判斷狀態是否需要重畫
   let ui = null; // { bar, track, groups, status, tint, restore }
 
   const CSS = `
@@ -22,6 +23,11 @@
     .viewport { flex: 1; overflow: hidden; position: relative; }
     .track { display: flex; width: max-content; animation: scroll-x linear infinite; }
     .bar.v .track { flex-direction: column; width: 100%; animation-name: scroll-y; }
+    .bar.inst .viewport { min-width: 0; overflow: auto; }
+    .bar.inst .track { animation: none; width: 100%; }
+    .bar.inst .group { margin: 0 auto; flex: none; }
+    .bar.inst .group:empty { display: none; }
+    .bar.inst .total { font-weight: 700; border-left: 1px solid #ddd; }
     .bar:hover .track { animation-play-state: paused; }
     .group { display: flex; align-items: center; gap: 8px; padding: 0 4px; box-sizing: border-box; }
     .bar.v .group { flex-direction: column; align-items: stretch; padding: 3px 6px; gap: 6px; }
@@ -83,22 +89,61 @@
     return item;
   }
 
+  // 盤後模式：收盤後（且今天是交易日）隱藏跑馬燈，等今日三大法人資料公布後改顯示買賣超
+  function afterMode() {
+    return settings.afterHours && isAfterClose() && data.quoteDate === taipeiDate();
+  }
+
+  function instReady() {
+    return !!data.inst && data.inst.date === taipeiDate();
+  }
+
+  const modeKey = () => `${afterMode()}|${instReady()}`;
+
+  const INST_LABEL = { foreign: '外資', trust: '投信', dealer: '自營商', total: '合計' };
+
+  function buildInstItems() {
+    const { date, rows } = data.inst;
+    const toYi = n => fmt(n / 1e8); // 元 → 億
+    const head = el('span', 'item');
+    head.style.background = FLAT.bg;
+    head.style.color = FLAT.text;
+    head.append(el('span', 'name', `三大法人買賣超 ${date.slice(4, 6)}/${date.slice(6, 8)}`));
+    const items = [head];
+    for (const r of rows) {
+      const c = colorsFor(r.net);
+      const item = el('span', r.key === 'total' ? 'item total' : 'item');
+      item.style.background = c.bg;
+      item.style.color = c.text;
+      item.title = `買進 ${toYi(r.buy)} 億／賣出 ${toYi(r.sell)} 億`;
+      item.append(el('span', 'name', INST_LABEL[r.key] || r.key), el('span', 'price', `${r.net > 0 ? '+' : ''}${toYi(r.net)} 億`));
+      items.push(item);
+    }
+    return items;
+  }
+
   // 只替換 group 內容，track 元素不變，動畫不會重新開始
   function fillQuotes() {
     if (!ui) return;
     const quotes = data.quotes || [];
     const hasSymbols = parseSymbols(settings.symbols).length > 0;
-    const make = () => quotes.length ? quotes.map(buildItem) : [el('span', 'item', hasSymbols ? '載入行情中…' : '尚未設定自選股，點工具列圖示設定')];
+    const showInst = afterMode() && instReady();
+    ui.bar.classList.toggle('inst', showInst);
+    const make = () => showInst ? buildInstItems() : quotes.length ? quotes.map(buildItem) : [el('span', 'item', hasSymbols ? '載入行情中…' : '尚未設定自選股，點工具列圖示設定')];
     // 股票少時重複內容直到填滿可視區，避免捲動出現大片空白
     const [g0, g1] = ui.groups;
     g0.replaceChildren(...make());
     const vpSize = () => ui.vertical ? ui.viewport.clientHeight : ui.viewport.clientWidth;
     const gSize = () => ui.vertical ? g0.offsetHeight : g0.offsetWidth;
-    for (let i = 0; i < 20 && gSize() > 0 && gSize() < vpSize(); i++) g0.append(...make());
-    g1.replaceChildren(...[...g0.children].map(n => n.cloneNode(true)));
+    if (!showInst) {
+      for (let i = 0; i < 20 && gSize() > 0 && gSize() < vpSize(); i++) g0.append(...make());
+      g1.replaceChildren(...[...g0.children].map(n => n.cloneNode(true)));
+    } else {
+      g1.replaceChildren();
+    }
     const t = data.updatedAt ? new Date(data.updatedAt).toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit', hour12: false }) : '';
-    ui.status.textContent = data.error ? '資料延遲' : data.closed ? '收盤' : t ? `${t} 更新` : '';
-    ui.status.title = data.error || '';
+    ui.status.textContent = showInst ? '盤後' : data.error ? '資料延遲' : data.closed ? '收盤' : t ? `${t} 更新` : '';
+    ui.status.title = showInst ? '' : data.error || '';
     updateTint();
     requestAnimationFrame(updateDuration);
   }
@@ -125,7 +170,9 @@
 
   function render() {
     teardown();
+    renderedKey = modeKey();
     if (isExcludedHost(location.hostname, settings.excluded)) return;
+    if (afterMode() && !instReady()) return; // 盤後等法人資料公布期間：完全不顯示
 
     host = document.createElement('div');
     host.id = 'tw-ticker-host';
@@ -182,10 +229,13 @@
     } else if (area === 'local') {
       const prevMin = data.minimized;
       for (const k in changes) data[k] = changes[k].newValue;
-      if (data.minimized !== prevMin) render();
+      if (data.minimized !== prevMin || modeKey() !== renderedKey) render();
       else fillQuotes();
     }
   });
+
+  // content script 沒有其他計時器：定時檢查是否跨過 13:35 收盤或隔日開盤，狀態變了才重畫
+  setInterval(() => { if (modeKey() !== renderedKey) render(); }, 30000);
 
   // ── 防窺模式：滑鼠移到邊緣才顯示，移開後自動收起 ──
   const EDGE = 8; // px

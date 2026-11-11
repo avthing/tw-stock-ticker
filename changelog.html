@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>台股跑馬燈更新紀錄</title>
+  <link rel="stylesheet" href="ui.css">
+  <link rel="stylesheet" href="changelog.css">
+</head>
+<body>
+  <main class="container">
+    <header class="header">
+      <div class="logo" data-icon="trend"></div>
+      <div>
+        <h1>更新紀錄</h1>
+        <p>每個版本新增與調整的內容，最新的在最上方</p>
+      </div>
+    </header>
+    <nav class="header-links" aria-label="相關頁面">
+      <a class="btn" href="options.html" data-icon="settings">設定頁</a>
+    </nav>
+
+    <div class="timeline">
+    <!-- 發版時：在這一行下方新增新版本的 article（最上面那篇會自動標示「目前版本」） -->
+
+    <article class="release" aria-labelledby="v0-2-2">
+      <h2 id="v0-2-2">v0.2.2 <time datetime="2026-11-11">2026-11-11</time></h2>
+      <h3>改善</h3>
+      <ul>
+        <li>盤後三大法人買賣超改為固定顯示一組資料，不再重複循環捲動；合計加粗，窄畫面可手動捲動查看。盤中股價仍維持跑馬燈。</li>
+      </ul>
+    </article>
+
+    <article class="release" aria-labelledby="v0-2-1">
+      <h2 id="v0-2-1">v0.2.1 <time datetime="2026-11-11">2026-11-11</time></h2>
+      <h3>改善</h3>
+      <ul>
+        <li>設定頁、新手教學與更新紀錄頁換上新的版面：暖色背景、圓角、較大的按鈕與開關，位置與色系的選取狀態更清楚。功能與設定都沒有變動。</li>
+      </ul>
+    </article>
+
+    <article class="release" aria-labelledby="v0-2-0">
+      <h2 id="v0-2-0">v0.2.0 <time datetime="2026-11-11">2026-11-11</time></h2>
+      <h3>新增</h3>
+      <ul>
+        <li><strong>盤後模式</strong>（預設開啟）：平日 13:35 收盤後自動隱藏股價跑馬燈，等證交所公布當日三大法人買賣金額（通常約 15:00～16:30），再於同一位置顯示外資、投信、自營商與合計的買賣超（單位：億元，滑鼠移上去可看買進與賣出金額）。隔天開盤自動恢復股價；週末與休市日不受影響。可在設定頁關閉。</li>
+        <li><strong>更新紀錄頁</strong>（就是這一頁）：之後每次更新到新版本，會自動開啟這一頁告訴你改了什麼；也可以從設定頁右上角的「更新紀錄」隨時回來看。</li>
+        <li>新手教學加入「盤後模式」與「整頁濾鏡」的介紹。</li>
+      </ul>
+      <h3>改善</h3>
+      <ul>
+        <li>電腦睡眠過夜後，當天第一次醒來會自動補抓行情，不再停留在前一天的資料。</li>
+      </ul>
+    </article>
+
+    <article class="release" aria-labelledby="v0-1-1">
+      <h2 id="v0-1-1">v0.1.1 <time datetime="2026-11-08">2026-11-08</time></h2>
+      <h3>初版</h3>
+      <ul>
+        <li>在任何網頁上以跑馬燈輪播自選台股（上市、上櫃、ETF、加權指數）的股價與漲跌，每 1 分鐘更新。</li>
+        <li>可選擇上、下、左、右四個位置，以及捲動速度、紅漲綠跌或綠漲紅跌色系與自訂色號。</li>
+        <li>防窺模式、整頁淡色濾鏡、排除網站，以及新手教學。</li>
+        <li>非盤中時顯示上一個收盤價。</li>
+      </ul>
+    </article>
+    </div>
+  </main>
+
+  <script src="ui.js"></script>
+  <script src="changelog.js"></script>
+</body>
+</html>

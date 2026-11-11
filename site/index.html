@@ -5,40 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>台股跑馬燈｜在任何網頁看自選台股</title>
   <meta name="description" content="台股跑馬燈是 Chrome 擴充功能，在任何網頁的邊緣以跑馬燈輪播自選台股的股價與漲跌。支援上市、上櫃、ETF 與加權指數，紅漲綠跌，可自訂位置與配色。">
-  <meta name="theme-color" content="#F8FAFC" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#0B1220" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#C5CBD3">
   <meta property="og:title" content="台股跑馬燈｜在任何網頁看自選台股">
   <meta property="og:description" content="在任何網頁的邊緣，以跑馬燈輪播你的自選台股股價與漲跌。">
   <meta property="og:type" content="website">
   <link rel="icon" type="image/png" href="assets/icon128.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600&family=Newsreader:opsz,wght@6..72,400;6..72,500&family=Noto+Sans+TC:wght@500;600&family=Noto+Serif+TC:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <link rel="stylesheet" href="style.css">
+  <script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
   <a class="skip" href="#main">跳到主要內容</a>
 
-  <!-- SVG 圖示集（Lucide 風格，統一 2px 線寬） -->
-  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
-    <defs>
-      <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
-      <symbol id="i-panel" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 15h18"/></symbol>
-      <symbol id="i-trend" viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></symbol>
-      <symbol id="i-contrast" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 18a6 6 0 0 0 0-12v12z"/></symbol>
-      <symbol id="i-eyeoff" viewBox="0 0 24 24"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></symbol>
-      <symbol id="i-ban" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/></symbol>
-      <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></symbol>
-      <symbol id="i-copy" viewBox="0 0 24 24"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></symbol>
-      <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
-      <symbol id="i-pause" viewBox="0 0 24 24"><rect x="14" y="4" width="4" height="16" rx="1"/><rect x="6" y="4" width="4" height="16" rx="1"/></symbol>
-      <symbol id="i-play" viewBox="0 0 24 24"><polygon points="6 3 20 12 6 21 6 3"/></symbol>
-      <symbol id="i-external" viewBox="0 0 24 24"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></symbol>
-    </defs>
-  </svg>
-
   <header class="site-header">
-    <div class="wrap bar">
+    <div class="container bar">
       <a class="brand" href="#top" aria-label="台股跑馬燈 回到頁首">
         <img src="assets/icon128.png" alt="" width="32" height="32">
         <span>台股跑馬燈</span>
@@ -48,107 +30,139 @@
         <a href="#usage">使用方式</a>
         <a href="#install">下載安裝</a>
         <a href="#faq">常見問題</a>
+        <a class="btn btn--quiet" href="#install">下載</a>
       </nav>
-      <a class="btn btn-sm" href="#install">
-        <svg class="icon" aria-hidden="true"><use href="#i-download"/></svg>下載
-      </a>
     </div>
   </header>
 
   <main id="main">
     <!-- Hero -->
     <section class="hero" id="top">
-      <div class="wrap">
-        <p class="eyebrow">Chrome 擴充功能</p>
-        <h1>任何網頁，<br class="br-m">都能看自選台股</h1>
-        <p class="lead">在網頁邊緣以跑馬燈輪播你的自選股價與當日漲跌。工作、看文件、逛網站，都不必另外切換視窗盯盤。</p>
-        <div class="cta">
-          <a class="btn btn-lg" href="https://github.com/avthing/tw-stock-ticker/releases/latest/download/tw-stock-ticker.zip">
-            <svg class="icon" aria-hidden="true"><use href="#i-download"/></svg>下載 v0.1.1（zip）
-          </a>
-          <a class="btn btn-lg btn-ghost" href="#usage">看使用方式</a>
-        </div>
-        <p class="note">需以開發人員模式手動安裝，約 1 分鐘完成。原始碼公開在 <a href="https://github.com/avthing/tw-stock-ticker">GitHub</a>。</p>
-
-        <figure class="demo">
-          <div class="frame">
-            <div class="frame-top" aria-hidden="true"><i></i><i></i><i></i><span>https://www.example.com</span></div>
-            <div class="frame-page" aria-hidden="true"><b></b><b></b><b></b><b></b><b></b></div>
-            <div class="ticker" role="group" aria-label="跑馬燈示意（價格為示意資料）">
-              <div class="vp">
-                <div class="track" id="track">
-                  <div class="group">
-                    <span class="q up"><span class="n">加權指數</span><span class="p">20,000.00</span><span class="c">▲+120.50 (+0.61%)</span></span>
-                    <span class="q down"><span class="n">台積電 2330</span><span class="p">1,000.00</span><span class="c">▼-5.00 (-0.50%)</span></span>
-                    <span class="q up"><span class="n">元大台灣50 0050</span><span class="p">100.00</span><span class="c">▲+1.20 (+1.21%)</span></span>
-                    <span class="q flat"><span class="n">範例股份 0000</span><span class="p">50.00</span><span class="c">－0.00 (0.00%)</span></span>
-                    <span class="q down"><span class="n">櫃買指數</span><span class="p">250.00</span><span class="c">▼-0.80 (-0.32%)</span></span>
-                  </div>
-                  <div class="group" aria-hidden="true">
-                    <span class="q up"><span class="n">加權指數</span><span class="p">20,000.00</span><span class="c">▲+120.50 (+0.61%)</span></span>
-                    <span class="q down"><span class="n">台積電 2330</span><span class="p">1,000.00</span><span class="c">▼-5.00 (-0.50%)</span></span>
-                    <span class="q up"><span class="n">元大台灣50 0050</span><span class="p">100.00</span><span class="c">▲+1.20 (+1.21%)</span></span>
-                    <span class="q flat"><span class="n">範例股份 0000</span><span class="p">50.00</span><span class="c">－0.00 (0.00%)</span></span>
-                    <span class="q down"><span class="n">櫃買指數</span><span class="p">250.00</span><span class="c">▼-0.80 (-0.32%)</span></span>
-                  </div>
-                </div>
-              </div>
-              <button class="pause" id="pause" type="button" aria-pressed="false" aria-label="暫停跑馬燈示意" hidden>
-                <svg class="icon" aria-hidden="true"><use href="#i-pause"/></svg>
-              </button>
+      <div class="container">
+        <div class="cols">
+          <div class="intro">
+            <h1>任何網頁，<br>都能看自選台股</h1>
+            <p class="lead">在網頁邊緣以跑馬燈輪播你的自選股價與當日漲跌。</p>
+            <div class="actions">
+              <a class="btn btn--primary" href="https://github.com/avthing/tw-stock-ticker/releases/latest/download/tw-stock-ticker.zip">下載 v0.2.2（zip）</a>
+              <a class="btn" href="#usage">看使用方式</a>
             </div>
           </div>
-          <figcaption>跑馬燈示意。畫面中的價格皆為示意資料，不是即時行情。</figcaption>
-        </figure>
+          <figure class="screen">
+            <div class="shot" data-slot="hero" data-kind="product" data-alt="擴充功能的跑馬燈貼在任一網頁邊緣，輪播自選股價與漲跌">
+              <img src="assets/ticker-day.png" srcset="assets/ticker-day.png 880w" sizes="(min-width: 60rem) 28rem, 100vw" width="880" height="1040" alt="網頁右側的直向跑馬燈，由下往上輪播加權指數、台積電與元大台灣50的示意股價" fetchpriority="high">
+            </div>
+            <figcaption>跑馬燈貼在任一網頁的邊緣，圖中是右側直向窄欄。畫面中的價格皆為示意資料，不是即時行情。</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- 跑馬燈示意：產品本身在跑 -->
+    <figure class="tape" data-loop role="group" aria-label="跑馬燈示意（價格為示意資料）">
+      <div class="tape-row">
+        <div class="tape-vp">
+          <div class="tape-track" id="track">
+            <div class="tape-group">
+              <span class="q up"><span class="n">加權指數</span><span class="p">20,000.00</span><span class="c">▲+120.50 (+0.61%)</span></span>
+              <span class="q down"><span class="n">台積電 2330</span><span class="p">1,000.00</span><span class="c">▼-5.00 (-0.50%)</span></span>
+              <span class="q up"><span class="n">元大台灣50 0050</span><span class="p">100.00</span><span class="c">▲+1.20 (+1.21%)</span></span>
+              <span class="q flat"><span class="n">範例股份 0000</span><span class="p">50.00</span><span class="c">－0.00 (0.00%)</span></span>
+              <span class="q down"><span class="n">櫃買指數</span><span class="p">250.00</span><span class="c">▼-0.80 (-0.32%)</span></span>
+            </div>
+            <div class="tape-group" aria-hidden="true">
+              <span class="q up"><span class="n">加權指數</span><span class="p">20,000.00</span><span class="c">▲+120.50 (+0.61%)</span></span>
+              <span class="q down"><span class="n">台積電 2330</span><span class="p">1,000.00</span><span class="c">▼-5.00 (-0.50%)</span></span>
+              <span class="q up"><span class="n">元大台灣50 0050</span><span class="p">100.00</span><span class="c">▲+1.20 (+1.21%)</span></span>
+              <span class="q flat"><span class="n">範例股份 0000</span><span class="p">50.00</span><span class="c">－0.00 (0.00%)</span></span>
+              <span class="q down"><span class="n">櫃買指數</span><span class="p">250.00</span><span class="c">▼-0.80 (-0.32%)</span></span>
+            </div>
+          </div>
+        </div>
+        <button class="pause" id="pause" type="button" aria-pressed="false" aria-label="暫停跑馬燈示意">暫停</button>
+      </div>
+      <div class="container tape-cap"><figcaption>跑馬燈示意，滑鼠移上去會暫停。價格皆為示意資料。</figcaption></div>
+    </figure>
+
+    <!-- 盤後模式：一個交易日 -->
+    <section class="section--tall section" id="day" aria-labelledby="day-h">
+      <div class="container">
+        <div class="cols">
+          <div class="head">
+            <h2 id="day-h">一個交易日，跑馬燈這樣變</h2>
+            <p class="lead">盤後模式預設開啟，可在設定頁關閉。</p>
+          </div>
+          <div class="sheet">
+            <table>
+              <thead>
+                <tr><th scope="col">時段</th><th scope="col">跑馬燈顯示</th></tr>
+              </thead>
+              <tbody>
+                <tr><th scope="row">平日 09:00 至 13:35</th><td>股價跑馬燈，每 1 分鐘更新</td></tr>
+                <tr><th scope="row">13:35 收盤後</th><td>跑馬燈自動隱藏</td></tr>
+                <tr><th scope="row">約 15:00 至 16:30</th><td>證交所公布當日三大法人買賣金額後，顯示外資、投信、自營商與合計的買賣超</td></tr>
+                <tr><th scope="row">隔天開盤</th><td>自動恢復股價</td></tr>
+                <tr><th scope="row">週末與休市日</th><td>不受影響，標示「收盤」並顯示上一個交易日的收盤價</td></tr>
+              </tbody>
+            </table>
+            <p class="note">不想隱藏跑馬燈的話，關閉盤後模式，收盤後仍會顯示當天收盤價。</p>
+          </div>
+          <figure class="after">
+            <div class="shot" data-slot="after" data-kind="product" data-alt="收盤後跑馬燈改顯示外資、投信、自營商與合計的買賣超">
+              <img src="assets/ticker-after.png" srcset="assets/ticker-after.png 880w" sizes="(min-width: 60rem) 28rem, 100vw" width="880" height="1040" alt="盤後模式下，右側的直向跑馬燈顯示外資、投信、自營商與合計的買賣超，單位為億" loading="lazy">
+            </div>
+            <figcaption>三大法人公布後，同一條跑馬燈改顯示買賣超。畫面中的金額皆為示意資料。</figcaption>
+          </figure>
+        </div>
       </div>
     </section>
 
     <!-- 特色 -->
     <section class="section" id="features" aria-labelledby="features-h">
-      <div class="wrap">
-        <h2 id="features-h">特色</h2>
-        <p class="section-lead">不改變你原本的瀏覽方式，只在邊緣多一條安靜的行情列。</p>
-        <ul class="cards">
-          <li class="card">
-            <svg class="icon icon-lg" aria-hidden="true"><use href="#i-search"/></svg>
-            <h3>模糊搜尋自選股</h3>
-            <p>輸入名稱或代號即可，例如「台積」、「元大50」、「2330」。支援上市、上櫃、ETF、加權指數與櫃買指數。</p>
-          </li>
-          <li class="card">
-            <svg class="icon icon-lg" aria-hidden="true"><use href="#i-panel"/></svg>
-            <h3>四個位置任選</h3>
-            <p>放在畫面上方、下方做橫向捲動，或放在左、右側做直向窄欄，避開你正在看的內容。</p>
-          </li>
-          <li class="card">
-            <svg class="icon icon-lg" aria-hidden="true"><use href="#i-trend"/></svg>
-            <h3>紅漲綠跌，可切換</h3>
-            <p>預設採台股慣例（紅漲綠跌），也能切成美股慣例。漲跌色號可以自訂，並以箭頭輔助辨識。</p>
-          </li>
-          <li class="card">
-            <svg class="icon icon-lg" aria-hidden="true"><use href="#i-contrast"/></svg>
-            <h3>整頁淡色濾鏡</h3>
-            <p>依加權指數漲跌，替整個網頁蓋上一層淡淡的色調，不用看數字也知道今天盤勢。預設關閉。</p>
-          </li>
-          <li class="card">
-            <svg class="icon icon-lg" aria-hidden="true"><use href="#i-eyeoff"/></svg>
-            <h3>防窺模式</h3>
-            <p>平時完全隱藏，滑鼠移到跑馬燈所在的畫面邊緣才滑出，移開 0.5 秒後自動收起。預設關閉。</p>
-          </li>
-          <li class="card">
-            <svg class="icon icon-lg" aria-hidden="true"><use href="#i-ban"/></svg>
-            <h3>排除、暫停、最小化</h3>
-            <p>可指定不顯示的網站（預設排除 YouTube、Netflix）。滑鼠移上去暫停，也能一鍵最小化，所有分頁同步。</p>
-          </li>
-        </ul>
+      <div class="container">
+        <div class="cols">
+          <div class="head rows-head">
+            <h2 id="features-h">邊緣多一條安靜的行情列</h2>
+            <p class="lead">不改變你原本的瀏覽方式。</p>
+          </div>
+          <ul class="rows">
+            <li>
+              <h3>模糊搜尋自選股</h3>
+              <p>輸入名稱或代號即可，例如「台積」、「元大50」、「2330」。支援上市、上櫃、ETF、加權指數與櫃買指數。</p>
+            </li>
+            <li>
+              <h3>四個位置任選</h3>
+              <p>放在畫面上方、下方做橫向捲動，或放在左、右側做直向窄欄，避開你正在看的內容。</p>
+            </li>
+            <li>
+              <h3>紅漲綠跌，可切換</h3>
+              <p>預設採台股慣例（紅漲綠跌），也能切成美股慣例。漲跌色號可以自訂，並以箭頭輔助辨識。</p>
+            </li>
+            <li>
+              <h3>整頁淡色濾鏡</h3>
+              <p>依加權指數漲跌，替整個網頁蓋上一層淡淡的色調，不用看數字也知道今天盤勢。預設關閉。</p>
+            </li>
+            <li>
+              <h3>防窺模式</h3>
+              <p>平時完全隱藏，滑鼠移到跑馬燈所在的畫面邊緣才滑出，移開 0.5 秒後自動收起。預設關閉。</p>
+            </li>
+            <li>
+              <h3>排除、暫停、最小化</h3>
+              <p>可指定不顯示的網站（預設排除 YouTube、Netflix）。滑鼠移上去暫停，也能一鍵最小化，所有分頁同步。</p>
+            </li>
+          </ul>
+        </div>
       </div>
     </section>
 
     <!-- 使用方式 -->
-    <section class="section alt" id="usage" aria-labelledby="usage-h">
-      <div class="wrap narrow">
-        <h2 id="usage-h">使用方式</h2>
-        <p class="section-lead">安裝完成後，四個步驟就能開始看盤。</p>
-        <ol class="steps">
+    <section class="section section--tall section--well" id="usage" aria-labelledby="usage-h">
+      <div class="container">
+        <div class="head steps-head">
+          <h2 id="usage-h">四個步驟開始看盤</h2>
+          <p class="lead">安裝完成後，照著做就好。</p>
+        </div>
+        <ol class="steps4">
           <li>
             <h3>跟著新手教學走一遍</h3>
             <p>安裝完成會自動開啟新手教學頁，用互動示範帶你認識跑馬燈的操作。</p>
@@ -170,81 +184,87 @@
     </section>
 
     <!-- 下載安裝 -->
-    <section class="section" id="install" aria-labelledby="install-h">
-      <div class="wrap narrow">
-        <h2 id="install-h">下載安裝</h2>
-        <p class="section-lead">目前尚未上架 Chrome 線上應用程式商店，請依下列步驟以開發人員模式安裝。</p>
-        <ol class="steps">
-          <li>
-            <h3>下載並解壓縮</h3>
-            <p>下載 zip 後解壓縮，記住解壓縮後的資料夾位置，之後不要刪除它。</p>
-            <a class="btn" href="https://github.com/avthing/tw-stock-ticker/releases/latest/download/tw-stock-ticker.zip">
-              <svg class="icon" aria-hidden="true"><use href="#i-download"/></svg>下載 tw-stock-ticker.zip
-            </a>
-          </li>
-          <li>
-            <h3>開啟擴充功能管理頁</h3>
-            <p>在網址列輸入下方網址，並打開右上角的「開發人員模式」。基於瀏覽器限制，這個網址無法直接點擊開啟。</p>
-            <div class="copyrow">
-              <code id="ext-url">chrome://extensions</code>
-              <button class="btn btn-ghost btn-sm" id="copy" type="button" hidden>
-                <svg class="icon" aria-hidden="true"><use href="#i-copy"/></svg><span id="copy-label">複製網址</span>
-              </button>
-              <span class="sr" id="copy-status" role="status"></span>
-            </div>
-          </li>
-          <li>
-            <h3>載入未封裝項目</h3>
-            <p>按「載入未封裝項目」，選擇剛才解壓縮的資料夾（裡面直接有 <code>manifest.json</code> 的那一層）。完成後會自動開啟新手教學頁。</p>
-          </li>
-        </ol>
-        <p class="hint">安裝前就已經開著的分頁，需要重新整理一次才會出現跑馬燈。</p>
+    <section class="section section--tall" id="install" aria-labelledby="install-h">
+      <div class="container">
+        <div class="cols">
+          <div class="head install-head">
+            <h2 id="install-h">三步裝進 Chrome</h2>
+            <p class="lead">目前尚未上架 Chrome 線上應用程式商店，請依下列步驟以開發人員模式安裝。</p>
+            <p>需以開發人員模式手動安裝，約 1 分鐘完成。原始碼公開在 <a href="https://github.com/avthing/tw-stock-ticker">GitHub</a>。</p>
+            <p>安裝前就已經開著的分頁，需要重新整理一次才會出現跑馬燈。</p>
+          </div>
+          <ol class="ledger">
+            <li>
+              <h3>下載並解壓縮</h3>
+              <p>下載 zip 後解壓縮，記住解壓縮後的資料夾位置，之後不要刪除它。</p>
+              <a class="btn btn--quiet" href="https://github.com/avthing/tw-stock-ticker/releases/latest/download/tw-stock-ticker.zip">下載 tw-stock-ticker.zip</a>
+            </li>
+            <li>
+              <h3>開啟擴充功能管理頁</h3>
+              <p>在網址列輸入下方網址，並打開右上角的「開發人員模式」。基於瀏覽器限制，這個網址無法直接點擊開啟。</p>
+              <div class="copyrow">
+                <code id="ext-url">chrome://extensions</code>
+                <button class="btn btn--quiet" id="copy" type="button" hidden><span id="copy-label">複製網址</span></button>
+                <span class="sr" id="copy-status" role="status"></span>
+              </div>
+            </li>
+            <li>
+              <h3>載入未封裝項目</h3>
+              <p>按「載入未封裝項目」，選擇剛才解壓縮的資料夾（裡面直接有 <code>manifest.json</code> 的那一層）。完成後會自動開啟新手教學頁。</p>
+            </li>
+          </ol>
+        </div>
       </div>
     </section>
 
     <!-- 常見問題 -->
-    <section class="section alt" id="faq" aria-labelledby="faq-h">
-      <div class="wrap narrow">
-        <h2 id="faq-h">常見問題</h2>
-        <div class="faq">
-          <details>
-            <summary>行情有多即時？</summary>
-            <p>資料來自證交所 MIS 的非官方介面，本身約有 5 秒延遲；擴充功能每 1 分鐘更新一次（僅盤中），不是逐筆即時。跑馬燈右側會顯示最後更新時間。</p>
-          </details>
-          <details>
-            <summary>沒開盤的時候會顯示什麼？</summary>
-            <p>非盤中（週末、盤前、收盤後）跑馬燈會標示「收盤」，價格是上一個收盤價：平日收盤後是當天收盤價，週末與盤前則是上一個交易日的收盤價。</p>
-          </details>
-          <details>
-            <summary>為什麼有些頁面看不到跑馬燈？</summary>
-            <p><code>chrome://</code> 頁面、Chrome 線上應用程式商店與內建 PDF 檢視器，Chrome 不允許擴充功能注入，這是瀏覽器的限制。此外，YouTube、Netflix 預設在排除名單內，可以到設定頁修改。</p>
-          </details>
-          <details>
-            <summary>會蒐集我的瀏覽資料嗎？</summary>
-            <p>不會。擴充功能不蒐集、不上傳你的瀏覽紀錄。它只向證交所、櫃買中心取得行情與股票清單，設定則存放在 Chrome 的儲存空間（同步設定會跟著你的 Google 帳號）。完整原始碼公開，歡迎自行檢視。</p>
-          </details>
-          <details>
-            <summary>為什麼需要「讀取所有網站」的權限？</summary>
-            <p>因為跑馬燈要畫在你開啟的每一個網頁上，Chrome 會把這種做法顯示為可存取所有網站。擴充功能只會在頁面上加一條跑馬燈，不會讀取頁面上的文字或表單內容。</p>
-          </details>
-          <details>
-            <summary>這是投資建議嗎？</summary>
-            <p>不是。本工具僅提供行情顯示，資料可能延遲或有誤，請以券商與交易所公告為準，投資決策與風險由使用者自行負責。</p>
-          </details>
+    <section class="section section--well" id="faq" aria-labelledby="faq-h">
+      <div class="container">
+        <div class="cols">
+          <div class="head rows-head">
+            <h2 id="faq-h">常見問題</h2>
+          </div>
+          <div class="faq">
+            <details>
+              <summary>行情有多即時？</summary>
+              <p>資料來自證交所 MIS 的非官方介面，本身約有 5 秒延遲；擴充功能每 1 分鐘更新一次（僅盤中），不是逐筆即時。跑馬燈右側會顯示最後更新時間。</p>
+            </details>
+            <details>
+              <summary>收盤後或沒開盤的時候會顯示什麼？</summary>
+              <p>開啟盤後模式（預設開啟）時，平日 13:35 收盤後跑馬燈會先隱藏，等證交所公布當日三大法人買賣金額後，改顯示外資、投信、自營商與合計的買賣超，隔天開盤自動恢復股價。週末、盤前與休市日不受影響，跑馬燈會標示「收盤」，價格是上一個交易日的收盤價。關閉盤後模式的話，收盤後仍會顯示當天收盤價。</p>
+            </details>
+            <details>
+              <summary>為什麼有些頁面看不到跑馬燈？</summary>
+              <p><code>chrome://</code> 頁面、Chrome 線上應用程式商店與內建 PDF 檢視器，Chrome 不允許擴充功能注入，這是瀏覽器的限制。此外，YouTube、Netflix 預設在排除名單內，可以到設定頁修改。</p>
+            </details>
+            <details>
+              <summary>會蒐集我的瀏覽資料嗎？</summary>
+              <p>不會。擴充功能不蒐集、不上傳你的瀏覽紀錄。它只向證交所、櫃買中心取得行情與股票清單，設定則存放在 Chrome 的儲存空間（同步設定會跟著你的 Google 帳號）。完整原始碼公開，歡迎自行檢視。</p>
+            </details>
+            <details>
+              <summary>為什麼需要「讀取所有網站」的權限？</summary>
+              <p>因為跑馬燈要畫在你開啟的每一個網頁上，Chrome 會把這種做法顯示為可存取所有網站。擴充功能只會在頁面上加一條跑馬燈，不會讀取頁面上的文字或表單內容。</p>
+            </details>
+            <details>
+              <summary>這是投資建議嗎？</summary>
+              <p>不是。本工具僅提供行情顯示，資料可能延遲或有誤，請以券商與交易所公告為準，投資決策與風險由使用者自行負責。</p>
+            </details>
+          </div>
         </div>
       </div>
     </section>
   </main>
 
   <footer class="site-footer">
-    <div class="wrap foot">
-      <p>台股跑馬燈 v0.1.1・資料來源：臺灣證券交易所、證券櫃檯買賣中心。本工具為個人開發，與上述單位無關，不構成投資建議。</p>
-      <a href="https://github.com/avthing/tw-stock-ticker">
-        GitHub 原始碼<svg class="icon" aria-hidden="true"><use href="#i-external"/></svg>
-      </a>
+    <div class="container">
+      <div class="colophon">
+        <strong>台股跑馬燈 v0.2.2</strong>
+        <p>資料來源：臺灣證券交易所、證券櫃檯買賣中心。本工具為個人開發，與上述單位無關，不構成投資建議。</p>
+        <p><a href="https://github.com/avthing/tw-stock-ticker">GitHub 原始碼</a></p>
+      </div>
     </div>
   </footer>
 
-  <script src="script.js" defer></script>
+  <script src="script.js"></script>
 </body>
 </html>

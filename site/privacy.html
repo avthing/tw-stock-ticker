@@ -5,86 +5,117 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>隱私權政策｜台股跑馬燈</title>
   <meta name="description" content="台股跑馬燈 Chrome 擴充功能的隱私權政策：不蒐集任何個人資料，自選股與設定只儲存在你的瀏覽器。">
-  <meta name="theme-color" content="#F8FAFC" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#0B1220" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#C5CBD3">
   <link rel="icon" type="image/png" href="assets/icon128.png">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header class="site-header">
-    <div class="wrap bar">
+    <div class="container bar">
       <a class="brand" href="./" aria-label="台股跑馬燈 回到首頁">
         <img src="assets/icon128.png" alt="" width="32" height="32">
         <span>台股跑馬燈</span>
       </a>
+      <nav class="nav" aria-label="頁面連結"><a href="./">回首頁</a></nav>
     </div>
   </header>
 
   <main id="main">
-    <section class="section">
-      <div class="wrap narrow prose">
+    <header class="doc-head">
+      <div class="container">
         <h1>隱私權政策</h1>
-        <p class="meta">最後更新：2026 年 11 月 10 日</p>
+        <p class="meta">最後更新：2026 年 11 月 11 日</p>
+      </div>
+    </header>
 
-        <p>「台股跑馬燈」是一個 Chrome 擴充功能，在你瀏覽的網頁上以跑馬燈顯示你自選的台股股價。本文說明它會處理哪些資料、資料去了哪裡。</p>
+    <section class="doc" aria-label="隱私權政策全文">
+      <div class="container">
+        <div class="cols">
+          <div>
+            <div class="block" role="group" aria-labelledby="p-summary">
+              <h2 id="p-summary">摘要</h2>
+              <p>「台股跑馬燈」是一個 Chrome 擴充功能，在你瀏覽的網頁上以跑馬燈顯示你自選的台股股價。本文說明它會處理哪些資料、資料去了哪裡。</p>
+              <ul>
+                <li>開發者<strong>不蒐集</strong>任何個人資料，沒有帳號、沒有廣告、沒有分析或追蹤。</li>
+                <li>你的自選股與設定只儲存在你自己的瀏覽器。</li>
+                <li>為了取得報價，擴充功能會向臺灣證券交易所與證券櫃檯買賣中心的公開介面發出請求。</li>
+                <li>擴充功能不會讀取、記錄或傳送你瀏覽的網頁內容與瀏覽記錄。</li>
+              </ul>
+            </div>
 
-        <h2>摘要</h2>
-        <ul>
-          <li>開發者<strong>不蒐集</strong>任何個人資料，沒有帳號、沒有廣告、沒有分析或追蹤。</li>
-          <li>你的自選股與設定只儲存在你自己的瀏覽器。</li>
-          <li>為了取得報價，擴充功能會向臺灣證券交易所與證券櫃檯買賣中心的公開介面發出請求。</li>
-          <li>擴充功能不會讀取、記錄或傳送你瀏覽的網頁內容與瀏覽記錄。</li>
-        </ul>
+            <div class="block" role="group" aria-labelledby="p-stored">
+              <h2 id="p-stored">儲存在你瀏覽器的資料</h2>
+              <p>以下資料只存放在你的瀏覽器，開發者無法取得：</p>
+              <ul>
+                <li><strong>自選股與設定</strong>：自選股代號、跑馬燈位置、速度、顏色、排除網站、濾鏡、防窺模式與盤後模式等，使用 <code>chrome.storage.sync</code> 儲存。如果你在 Chrome 開啟了同步功能，這些設定會由 Google 依其自身的政策在你的裝置之間同步，開發者看不到。</li>
+                <li><strong>報價快取與狀態</strong>：最近一次取得的報價、當日三大法人買賣金額（公開資料）、更新時間與最小化狀態，使用 <code>chrome.storage.local</code> 儲存。</li>
+                <li><strong>股票清單快取</strong>：用於自選股搜尋的上市櫃股票與 ETF 名稱清單（公開資料），快取在你的瀏覽器約 7 天。</li>
+              </ul>
+              <p>你可以隨時在 Chrome 的擴充功能頁面移除本擴充功能，儲存的資料會一併被清除。</p>
+            </div>
 
-        <h2>儲存在你瀏覽器的資料</h2>
-        <p>以下資料只存放在你的瀏覽器，開發者無法取得：</p>
-        <ul>
-          <li><strong>自選股與設定</strong>：自選股代號、跑馬燈位置、速度、顏色、排除網站、濾鏡與防窺模式等，使用 <code>chrome.storage.sync</code> 儲存。如果你在 Chrome 開啟了同步功能，這些設定會由 Google 依其自身的政策在你的裝置之間同步，開發者看不到。</li>
-          <li><strong>報價快取與狀態</strong>：最近一次取得的報價、更新時間與最小化狀態，使用 <code>chrome.storage.local</code> 儲存。</li>
-          <li><strong>股票清單快取</strong>：用於自選股搜尋的上市櫃股票與 ETF 名稱清單（公開資料），快取在你的瀏覽器約 7 天。</li>
-        </ul>
-        <p>你可以隨時在 Chrome 的擴充功能頁面移除本擴充功能，儲存的資料會一併被清除。</p>
+            <div class="block" role="group" aria-labelledby="p-network">
+              <h2 id="p-network">會連到哪些網站</h2>
+              <p>擴充功能只會連線到下列公開服務，用途僅限取得行情、三大法人買賣金額與股票清單：</p>
+              <ul>
+                <li><code>mis.twse.com.tw</code>（臺灣證券交易所）：取得股價。每次請求會包含你自選股的代號，用來查詢對應的報價。</li>
+                <li><code>www.twse.com.tw</code>（臺灣證券交易所）：收盤後取得當日三大法人買賣金額統計。這是公開的統計資料，請求不包含你的自選股或任何個人資訊。</li>
+                <li><code>openapi.twse.com.tw</code>（臺灣證券交易所）、<code>www.tpex.org.tw</code>（證券櫃檯買賣中心）：下載上市、上櫃股票與 ETF 的名稱清單。</li>
+              </ul>
+              <p>這些請求由你的瀏覽器直接送出，不會經過開發者的伺服器，開發者沒有任何伺服器。上述單位和任何網站一樣，可能依其政策記錄一般的連線資訊（例如 IP 位址）。擴充功能不會附帶你的姓名、帳號或其他可識別身分的資訊。</p>
+            </div>
 
-        <h2>會連到哪些網站</h2>
-        <p>擴充功能只會連線到下列公開服務，用途僅限取得行情與股票清單：</p>
-        <ul>
-          <li><code>mis.twse.com.tw</code>（臺灣證券交易所）：取得股價。每次請求會包含你自選股的代號，用來查詢對應的報價。</li>
-          <li><code>openapi.twse.com.tw</code>（臺灣證券交易所）、<code>www.tpex.org.tw</code>（證券櫃檯買賣中心）：下載上市、上櫃股票與 ETF 的名稱清單。</li>
-        </ul>
-        <p>這些請求由你的瀏覽器直接送出，不會經過開發者的伺服器，開發者沒有任何伺服器。上述單位和任何網站一樣，可能依其政策記錄一般的連線資訊（例如 IP 位址）。擴充功能不會附帶你的姓名、帳號或其他可識別身分的資訊。</p>
+            <div class="block" role="group" aria-labelledby="p-permission">
+              <h2 id="p-permission">為什麼需要「讀取所有網站」的權限</h2>
+              <p>跑馬燈要畫在你開啟的每一個網頁上，因此擴充功能會注入所有網站。它只會在頁面上加入自己的跑馬燈介面（以 Shadow DOM 隔離），不會讀取頁面上的文字、表單或輸入內容，也不會記錄你造訪過哪些網站。選用的整頁淡色濾鏡預設關閉，只是視覺上的色彩覆蓋。你可以在設定頁排除特定網站，預設已排除 youtube.com 與 netflix.com。</p>
+            </div>
 
-        <h2>為什麼需要「讀取所有網站」的權限</h2>
-        <p>跑馬燈要畫在你開啟的每一個網頁上，因此擴充功能會注入所有網站。它只會在頁面上加入自己的跑馬燈介面（以 Shadow DOM 隔離），不會讀取頁面上的文字、表單或輸入內容，也不會記錄你造訪過哪些網站。選用的整頁淡色濾鏡預設關閉，只是視覺上的色彩覆蓋。你可以在設定頁排除特定網站，預設已排除 youtube.com 與 netflix.com。</p>
+            <div class="block" role="group" aria-labelledby="p-use">
+              <h2 id="p-use">資料的使用與分享</h2>
+              <ul>
+                <li>不會販售或轉移使用者資料給第三方（為取得報價而向證交所與櫃買中心發出的請求除外，見上文）。</li>
+                <li>不會將資料用於與本擴充功能單一用途（顯示自選台股股價）無關的目的。</li>
+                <li>不會將資料用於判斷信用或貸款。</li>
+              </ul>
+            </div>
 
-        <h2>資料的使用與分享</h2>
-        <ul>
-          <li>不會販售或轉移使用者資料給第三方（為取得報價而向證交所與櫃買中心發出的請求除外，見上文）。</li>
-          <li>不會將資料用於與本擴充功能單一用途（顯示自選台股股價）無關的目的。</li>
-          <li>不會將資料用於判斷信用或貸款。</li>
-        </ul>
+            <div class="block" role="group" aria-labelledby="p-site">
+              <h2 id="p-site">官方網站</h2>
+              <p>官方網站 <code>tw-stock-ticker.pages.dev</code> 沒有使用 Cookie、分析工具或廣告追蹤。首頁會載入 Google Fonts 字型，Google 可能因此取得訪客的 IP 位址；本隱私權政策頁面不載入任何外部資源。</p>
+            </div>
 
-        <h2>官方網站</h2>
-        <p>官方網站 <code>tw-stock-ticker.pages.dev</code> 沒有使用 Cookie、分析工具或廣告追蹤。首頁會載入 Google Fonts 字型，Google 可能因此取得訪客的 IP 位址；本隱私權政策頁面不載入任何外部資源。</p>
+            <div class="block" role="group" aria-labelledby="p-children">
+              <h2 id="p-children">兒童</h2>
+              <p>本擴充功能不會刻意蒐集任何人的個人資料，包括兒童。</p>
+            </div>
 
-        <h2>兒童</h2>
-        <p>本擴充功能不會刻意蒐集任何人的個人資料，包括兒童。</p>
+            <div class="block" role="group" aria-labelledby="p-change">
+              <h2 id="p-change">政策變更</h2>
+              <p>若本政策有調整，會更新此頁面與上方的「最後更新」日期。</p>
+            </div>
 
-        <h2>政策變更</h2>
-        <p>若本政策有調整，會更新此頁面與上方的「最後更新」日期。</p>
+            <div class="block" role="group" aria-labelledby="p-contact">
+              <h2 id="p-contact">聯絡方式</h2>
+              <p>對隱私有任何疑問，歡迎到 <a href="https://github.com/avthing/tw-stock-ticker/issues">GitHub Issues</a> 提問。</p>
+            </div>
 
-        <h2>聯絡方式</h2>
-        <p>對隱私有任何疑問，歡迎到 <a href="https://github.com/avthing/tw-stock-ticker/issues">GitHub Issues</a> 提問。</p>
-
-        <h2>免責聲明</h2>
-        <p>本擴充功能為獨立開發的第三方工具，與臺灣證券交易所、證券櫃檯買賣中心無任何關聯。顯示的資訊僅供參考，不構成任何投資建議，投資人應自行判斷並承擔風險。</p>
+            <div class="block" role="group" aria-labelledby="p-disclaimer">
+              <h2 id="p-disclaimer">免責聲明</h2>
+              <p>本擴充功能為獨立開發的第三方工具，與臺灣證券交易所、證券櫃檯買賣中心無任何關聯。顯示的資訊僅供參考，不構成任何投資建議，投資人應自行判斷並承擔風險。</p>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   </main>
 
   <footer class="site-footer">
-    <div class="wrap foot">
-      <p>台股跑馬燈・<a href="./">回到官網首頁</a></p>
-      <a href="https://github.com/avthing/tw-stock-ticker">GitHub 原始碼</a>
+    <div class="container">
+      <div class="colophon">
+        <strong>台股跑馬燈</strong>
+        <p><a href="./">回到官網首頁</a></p>
+        <p><a href="https://github.com/avthing/tw-stock-ticker">GitHub 原始碼</a></p>
+      </div>
     </div>
   </footer>
 </body>

@@ -1,6 +1,6 @@
 # 台股跑馬燈（Chrome 擴充功能）
 
-目前版本：**v0.2.2**（[下載 zip](https://github.com/avthing/tw-stock-ticker/releases/latest/download/tw-stock-ticker.zip)）
+目前版本：**v0.2.2**（[Chrome 線上應用程式商店](https://chromewebstore.google.com/detail/%E5%8F%B0%E8%82%A1%E8%B7%91%E9%A6%AC%E7%87%88/oakjohhkajoanffodofgkgpjjpijfdhp)、[下載 zip](https://github.com/avthing/tw-stock-ticker/releases/latest/download/tw-stock-ticker.zip)）
 
 在任何網頁的上、下、左、右側，像新聞跑馬燈一樣輪播自選台股的即時股價與當日漲跌。
 
@@ -18,7 +18,11 @@
 - 滑鼠移上去暫停捲動；可以最小化，所有分頁同步
 - 安裝後自動開啟新手教學頁；更新到新版本時自動開啟更新紀錄頁
 
-## 安裝（開發版）
+## 安裝
+
+**建議**：到 [Chrome 線上應用程式商店](https://chromewebstore.google.com/detail/%E5%8F%B0%E8%82%A1%E8%B7%91%E9%A6%AC%E7%87%88/oakjohhkajoanffodofgkgpjjpijfdhp) 按「加到 Chrome」，會自動更新。
+
+**開發版（手動安裝）**：
 1. 開啟 `chrome://extensions`，打開右上角「開發人員模式」
 2. 點「載入未封裝項目」，選擇本資料夾
 3. 安裝完成後會自動開啟新手教學頁；之後點工具列圖示即可開啟設定頁
@@ -42,5 +46,5 @@
 - 換頁時跑馬燈會從頭開始捲動
 
 ## 發版規則
-每次 bump `manifest.json` 版本號，要同步在 `changelog.html` 最上方新增該版本的 `<article class="card release">`（最上面那篇會自動標示「目前版本」），並一併更新 `site/index.html` 的下載版本文字。
+每次 bump `manifest.json` 版本號，要同步在 `changelog.html` 最上方新增該版本的 `<article class="card release">`（最上面那篇會自動標示「目前版本」），並一併更新本檔「目前版本」與 `site/index.html` 頁尾的版本文字。
 - 安裝前已經開著的分頁，要重新整理才會出現跑馬燈

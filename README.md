@@ -1,6 +1,6 @@
 # 台股跑馬燈（Chrome 擴充功能）
 
-目前版本：**v0.2.2**（[Chrome 線上應用程式商店](https://chromewebstore.google.com/detail/%E5%8F%B0%E8%82%A1%E8%B7%91%E9%A6%AC%E7%87%88/oakjohhkajoanffodofgkgpjjpijfdhp)、[下載 zip](https://github.com/avthing/tw-stock-ticker/releases/latest/download/tw-stock-ticker.zip)）
+目前版本：**v0.2.3**（[Chrome 線上應用程式商店](https://chromewebstore.google.com/detail/%E5%8F%B0%E8%82%A1%E8%B7%91%E9%A6%AC%E7%87%88/oakjohhkajoanffodofgkgpjjpijfdhp)、[下載 zip](https://github.com/avthing/tw-stock-ticker/releases/latest/download/tw-stock-ticker.zip)）
 
 在任何網頁的上、下、左、右側，像新聞跑馬燈一樣輪播自選台股的即時股價與當日漲跌。
 

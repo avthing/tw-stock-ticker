@@ -20,7 +20,9 @@ function toQuote(m, closed) {
     price = (finalTick ? num(m.z) : null) ?? prev;
   } else {
     // 無成交時依序退回：最佳買價 → 最佳賣價（跌停鎖死時只有賣價）→ 昨收
-    price = num(m.z) ?? num(String(m.b || '').split('_')[0]) ?? num(String(m.a || '').split('_')[0]) ?? prev;
+    // 漲停鎖死時買價第一檔會是 0.0000（市價單佔位），須略過 0 取第一個有效價
+    const firstPrice = s => String(s || '').split('_').map(num).find(n => n > 0) ?? null;
+    price = num(m.z) ?? firstPrice(m.b) ?? firstPrice(m.a) ?? prev;
   }
   if (price == null || prev == null) return null;
   const change = price - prev;

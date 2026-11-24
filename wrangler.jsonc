@@ -5,6 +5,7 @@
   "assets": {
     "directory": "./site"
   },
+  "preview_urls": false,
   "observability": {
     "enabled": true
   }

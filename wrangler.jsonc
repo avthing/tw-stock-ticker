@@ -1,0 +1,11 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "tw-stock-ticker",
+  "compatibility_date": "2026-11-12",
+  "assets": {
+    "directory": "./site"
+  },
+  "observability": {
+    "enabled": true
+  }
+}

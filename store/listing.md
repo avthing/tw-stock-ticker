@@ -11,7 +11,7 @@
 
 ### 套件摘要
 ```
-在任何網頁上以跑馬燈輪播自選台股的股價與漲跌，支援上市櫃、ETF 與加權指數，盤中自動更新。
+在任何網頁上以跑馬燈輪播自選台股與臺指期夜盤的股價與漲跌，支援上市櫃、ETF 與加權指數，自動更新。
 ```
 
 ### 說明
@@ -45,7 +45,13 @@
 7. 盤後模式：收盤後改看三大法人（預設開啟）
 平日 13:35 收盤後，跑馬燈自動隱藏；等證交所公布當日三大法人買賣金額（通常約 15:00～16:30），再於同一位置顯示外資、投信、自營商與合計的買賣超。隔天開盤自動恢復股價，不想隱藏可在設定頁關閉。
 
-8. 新手教學與更新紀錄
+8. 夜盤（預設關閉）
+在自選股搜尋框加入標示「夜盤」的項目，例如臺指期、台積電與聯電期貨、ETF 期貨（候選清單由期交所動態取得）。夜盤項目只在夜盤時段（平日 15:00 至隔日 05:00，週五夜盤到週六凌晨 05:00）顯示；開啟盤後模式時，有夜盤報價就整條跑馬燈輪播夜盤與三大法人。「顯示夜盤」開關沒打開就加入夜盤項目時，會詢問是否一併開啟。
+
+9. 設定匯出與匯入
+設定頁可把自選股與所有設定存成檔案，在另一台電腦或另一個瀏覽器匯入，換電腦或備份都方便。
+
+10. 新手教學與更新紀錄
 安裝後自動開啟教學頁，一步步帶你完成設定；每次更新到新版本，會自動開啟更新紀錄頁，告訴你改了什麼。
 
 【使用方式】
@@ -55,24 +61,27 @@
 4. 選擇跑馬燈位置、速度與顏色，儲存後即可在網頁上看到跑馬燈
 
 【資料來源與更新頻率】
-• 報價來自臺灣證券交易所公開行情介面（mis.twse.com.tw），三大法人買賣金額來自證交所公開統計表（www.twse.com.tw），股票清單來自證交所與櫃買中心的 OpenAPI
+• 報價來自臺灣證券交易所公開行情介面（mis.twse.com.tw），三大法人買賣金額來自證交所公開統計表（www.twse.com.tw），股票清單來自證交所與櫃買中心的 OpenAPI；夜盤報價與夜盤商品清單來自臺灣期貨交易所公開行情介面（mis.taifex.com.tw）
+• 夜盤項目預設關閉；加入夜盤項目並開啟「顯示夜盤」後，夜盤時段（台北時間平日 15:00 至隔日 05:00）每 1 分鐘更新一次夜盤報價
 • 僅在盤中（台北時間週一至週五 09:00–13:35）每 1 分鐘更新一次，不是逐筆即時；報價本身約有數秒延遲，跑馬燈右側會顯示最後更新時間
 • 收盤後開啟盤後模式時，跑馬燈隱藏並等待三大法人資料公布，公布後顯示買賣超；週末與休市日、或關閉盤後模式時，顯示上一個交易日的收盤價
 
 【隱私】
 • 不蒐集、不上傳任何個人資料，沒有帳號、沒有廣告、沒有追蹤
 • 自選股與設定只儲存在你的瀏覽器（chrome.storage），不會傳送給開發者，開發者也沒有任何伺服器
-• 只會向證交所與櫃買中心的公開介面請求行情、三大法人買賣金額與股票清單；查詢報價時，請求會包含你自選股的代號，查詢三大法人則不含任何個人資訊
+• 只會向證交所、櫃買中心與期交所的公開介面請求行情、三大法人買賣金額、夜盤報價與股票清單；查詢報價時，請求會包含你自選股的代號，查詢三大法人與夜盤則不含你的自選股或任何個人資訊
+• 匯出的設定檔只會下載到你的電腦，不會傳送給任何人
 • 不會讀取、記錄或傳送你瀏覽的網頁內容與瀏覽記錄
 
 【已知限制】
 • Chrome 的限制：chrome:// 頁面、Chrome 線上應用程式商店與內建 PDF 檢視器無法顯示跑馬燈
 • 安裝前就已開啟的分頁需要重新整理才會出現跑馬燈
 • 換頁時跑馬燈會從頭開始捲動
-• 若請求過於頻繁，證交所介面可能暫時限制存取，因此更新頻率固定為每分鐘一次
+• 夜盤報價超過 15 分鐘沒有成交更新時不會顯示；夜盤需先在設定頁開啟並加入夜盤項目
+• 若請求過於頻繁，證交所與期交所介面可能暫時限制存取，因此更新頻率固定為每分鐘一次
 
 【免責聲明】
-本擴充功能為獨立開發的第三方工具，與臺灣證券交易所、證券櫃檯買賣中心無任何關聯。顯示的資訊僅供參考，不構成任何投資建議，投資人應自行判斷並承擔風險。
+本擴充功能為獨立開發的第三方工具，與臺灣證券交易所、證券櫃檯買賣中心、臺灣期貨交易所無任何關聯。顯示的資訊僅供參考，不構成任何投資建議，投資人應自行判斷並承擔風險。
 
 官方網站與使用教學：https://tw-stock-ticker.pages.dev
 隱私權政策：https://tw-stock-ticker.pages.dev/privacy
@@ -100,15 +109,16 @@
 
 ### 單一用途
 ```
-在使用者瀏覽的網頁上，以跑馬燈顯示使用者自選的台股股價與漲跌；收盤後改在同一位置顯示當日三大法人買賣超。
+在使用者瀏覽的網頁上，以跑馬燈顯示使用者自選的台股股價與漲跌（含使用者選用的臺指期夜盤行情）；收盤後改在同一位置顯示當日三大法人買賣超。
 ```
 
 ### 權限使用理由
 | 權限 | 理由（貼進對應欄位） |
 |---|---|
 | `storage` | Saves the user's watchlist and display settings (position, colors, speed, excluded sites) with chrome.storage.sync, and caches the latest quotes, the minimized state and the public stock list with chrome.storage.local. This data stays in the user's browser (and Chrome's own sync, if enabled) and is never sent to the developer. The only thing sent over the network is the stock codes of the watchlist, which go to the public TWSE quote endpoint to fetch prices. |
-| `alarms` | Schedules the periodic refresh. The alarm fires once per minute, but the service worker only makes a quote request during Taiwan market hours (Mon-Fri 09:00-13:35 Taipei time), plus one catch-up request after the close to show the closing price. After the close, when the optional after-hours mode is on, it also checks once per minute whether TWSE has published that day's institutional investors' buy/sell totals (a public statistics table, www.twse.com.tw), and stops as soon as the data for the day is received. |
+| `alarms` | Schedules the periodic refresh. The alarm fires once per minute, but the service worker only makes a quote request during Taiwan market hours (Mon-Fri 09:00-13:35 Taipei time), plus one catch-up request after the close to show the closing price. After the close, when the optional after-hours mode is on, it also checks once per minute whether TWSE has published that day's institutional investors' buy/sell totals (a public statistics table, www.twse.com.tw), and stops as soon as the data for the day is received. Only when the optional night-session setting is on and the user has added night-session items, it also requests the public Taifex night-session quotes once per minute between 15:00 and 05:00 Taipei time. |
 | `https://mis.twse.com.tw/*` | Fetches real-time stock quotes from the Taiwan Stock Exchange public market data endpoint. |
+| `https://mis.taifex.com.tw/*` | Fetches the public night-session (after-hours) futures quotes from the Taiwan Futures Exchange (Taifex) public market data endpoint, only when the user has turned on the optional night-session setting and added night-session items. The settings page also downloads the public list of night-session products so users can search for them. These requests contain only product categories, never the user's watchlist or any personal data. |
 | `https://openapi.twse.com.tw/*`、`https://www.tpex.org.tw/*` | Downloads the public list of listed stocks and ETFs (TWSE and TPEx) so users can search by name or code when building their watchlist. |
 | 內容腳本 `<all_urls>` | The core feature is a ticker bar overlaid on whatever page the user is browsing. It must be injected into all websites; it only draws a UI element, and never reads, collects or modifies page content. Users can exclude specific sites in settings. |
 

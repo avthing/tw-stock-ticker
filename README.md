@@ -1,6 +1,6 @@
 # 台股跑馬燈（Chrome 擴充功能）
 
-目前版本：**v0.2.3**（[Chrome 線上應用程式商店](https://chromewebstore.google.com/detail/%E5%8F%B0%E8%82%A1%E8%B7%91%E9%A6%AC%E7%87%88/oakjohhkajoanffodofgkgpjjpijfdhp)、[下載 zip](https://github.com/avthing/tw-stock-ticker/releases/latest/download/tw-stock-ticker.zip)）
+目前版本：**v0.3.0**（[Chrome 線上應用程式商店](https://chromewebstore.google.com/detail/%E5%8F%B0%E8%82%A1%E8%B7%91%E9%A6%AC%E7%87%88/oakjohhkajoanffodofgkgpjjpijfdhp)、[下載 zip](https://github.com/avthing/tw-stock-ticker/releases/latest/download/tw-stock-ticker.zip)）
 
 在任何網頁的上、下、左、右側，像新聞跑馬燈一樣輪播自選台股的即時股價與當日漲跌。
 
@@ -15,6 +15,8 @@
 - 防窺模式：平時隱藏，滑鼠移到跑馬燈所在的畫面邊緣才滑出，移開 0.5 秒後自動收起（預設關閉）
 - 排除網站：預設排除 youtube.com、netflix.com，子網域一併排除
 - 盤後模式（預設開啟）：平日 13:35 收盤後隱藏跑馬燈，等證交所公布當日三大法人買賣金額（約 15:00～16:30）再固定顯示一組外資、投信、自營商與合計的買賣超，不再循環捲動；隔天開盤自動恢復股價，週末與休市日不受影響
+- 夜盤（預設關閉）：自選股搜尋框可加入期交所的夜盤商品（臺指期等指數期貨、台積電與聯電期貨、ETF 期貨，候選清單動態取得），只在夜盤時段（平日 15:00～隔日 05:00，週五夜盤到週六 05:00）顯示；盤後模式下有夜盤報價時整條跑馬燈輪播夜盤與三大法人，沒有夜盤項目則維持固定顯示法人
+- 設定匯出／匯入：設定頁可把自選股與全部設定存成 JSON 檔，到另一台電腦或瀏覽器匯入（覆寫前會先確認，檔案上限 64KB）
 - 滑鼠移上去暫停捲動；可以最小化，所有分頁同步
 - 安裝後自動開啟新手教學頁；更新到新版本時自動開啟更新紀錄頁
 
@@ -32,9 +34,9 @@
 |---|---|
 | `manifest.json` | MV3 設定 |
 | `defaults.js` | 預設值與共用解析函式 |
-| `background.js` | Service worker，每 1 分鐘（僅盤中）抓取證交所 MIS 行情；收盤後輪詢證交所 BFI82U 三大法人買賣金額，直到取得當日資料；寫入 `chrome.storage.local` |
+| `background.js` | Service worker，每 1 分鐘（僅盤中）抓取證交所 MIS 行情；夜盤時段抓取期交所 MIS 夜盤行情；收盤後輪詢證交所 BFI82U 三大法人買賣金額，直到取得當日資料；寫入 `chrome.storage.local` |
 | `content.js` | 在網頁中以 Shadow DOM 繪製跑馬燈；盤後模式下負責隱藏與顯示法人買賣超 |
-| `options.html/js` | 設定頁 |
+| `options.html/js` | 設定頁（含設定匯出／匯入） |
 | `welcome.html/js` | 安裝後的新手教學頁 |
 | `changelog.html/js` | 更新紀錄頁，更新到新版本時自動開啟 |
 | `ui.css` / `ui.js` | 設定頁與教學頁共用的樣式、圖示與預覽元件 |
@@ -42,6 +44,7 @@
 ## 已知限制
 - `chrome://` 頁面、Chrome 線上應用程式商店、內建 PDF 檢視器無法注入，這是 Chrome 的限制
 - 資料來源是證交所 MIS 非官方介面，報價延遲約 5 秒；請求太頻繁可能被暫時封鎖（目前 1 分鐘更新一次，不是逐筆即時；跑馬燈右側顯示最後更新時間）
+- 夜盤資料來自期交所 MIS 非官方介面（`mis.taifex.com.tw`），夜盤時段每 1 分鐘更新；需先在設定頁開啟「顯示夜盤」並加入夜盤項目，夜盤報價超過 15 分鐘沒有成交更新就不顯示
 - 盤後模式靠 MIS 回傳的資料日期判斷今天是否為交易日，平日休市日不會進入盤後模式（維持顯示收盤價）；三大法人公布時間依證交所而定，公布前跑馬燈完全隱藏
 - 換頁時跑馬燈會從頭開始捲動
 

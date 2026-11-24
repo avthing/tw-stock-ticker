@@ -2,6 +2,7 @@ importScripts('defaults.js');
 
 const API = 'https://mis.twse.com.tw/stock/api/getStockInfo.jsp';
 const INST_API = 'https://www.twse.com.tw/rwd/zh/fund/BFI82U'; // 三大法人買賣金額統計表
+const NIGHT_API = 'https://mis.taifex.com.tw/futures/api/getQuoteList'; // 期交所臺指期夜盤
 const ALARM = 'tw-ticker-refresh';
 
 function num(v) {
@@ -34,7 +35,7 @@ let fetchSeq = 0; // 只讓最新一次請求寫入，避免慢回應蓋掉新�
 async function fetchQuotes() {
   const seq = ++fetchSeq;
   const { symbols } = await chrome.storage.sync.get({ symbols: DEFAULTS.symbols });
-  const codes = parseSymbols(symbols);
+  const codes = parseSymbols(symbols).filter(c => !isNightCode(c));
   // 一律附帶加權指數，供整頁濾鏡判斷大盤漲跌
   const all = [...new Set([...codes, INDEX_CODE])];
   const exCh = all.flatMap(c => [`tse_${c}.tw`, `otc_${c}.tw`]).join('|');
@@ -117,8 +118,108 @@ async function fetchInstitutional() {
   }
 }
 
+function fNum(v) {
+  const s = String(v ?? '').replace(/,/g, '').trim();
+  if (!s) return null;
+  const n = Number(s);
+  return Number.isFinite(n) ? n : null;
+}
+
+// 依期交所 QuoteList 與商品代號（如 TXF、CDF）取第一筆 CLastPrice > 0 的 -M 合約
+function toNightQuote(list, cid = 'TXF', fallbackName = '') {
+  let curCid = '';
+  const candidates = [];
+  for (const m of list || []) {
+    const sid = String(m?.SymbolID || '');
+    if (sid.endsWith('-P')) { curCid = sid.slice(0, -2); continue; }
+    if (!sid.endsWith('-M')) continue;
+    const rowCid = (curCid && sid.startsWith(curCid)) ? curCid : (curCid && /^MX\d/.test(sid) && curCid === 'MXF' ? 'MXF' : sid.replace(/[A-L]\d-M$/, ''));
+    if (rowCid === cid) candidates.push(m);
+  }
+  // 優先取 SymbolID 以 cid 開頭且 CLastPrice > 0 的近月合約（如 MXFL6-M 優先於 MX4K6-M）
+  candidates.sort((a, b) => (String(b.SymbolID).startsWith(cid) ? 1 : 0) - (String(a.SymbolID).startsWith(cid) ? 1 : 0));
+  for (const m of candidates) {
+    const price = fNum(m.CLastPrice);
+    if (price == null || price <= 0) continue;
+    const base = String(m.DispCName || '').replace(/\d+$/, '');
+    return {
+      code: 'N' + cid,
+      name: fallbackName || (base ? `${base}夜盤` : `N${cid}`),
+      price,
+      change: fNum(m.CDiff) ?? 0,
+      pct: fNum(m.CDiffRate) ?? 0,
+      time: String(m.CTime || '').trim()
+    };
+  }
+  return null;
+}
+
+let nightBusy = false;
+
+async function fetchNight() {
+  if (nightBusy || !isNightSession()) return;
+  nightBusy = true;
+  try {
+    const { nightFutures, symbols } = await chrome.storage.sync.get({
+      nightFutures: DEFAULTS.nightFutures,
+      symbols: DEFAULTS.symbols
+    });
+    const nightCodes = parseSymbols(symbols).filter(isNightCode);
+    if (!nightFutures || !nightCodes.length) return;
+
+    const { nightList, night: prevNight } = await chrome.storage.local.get(['nightList', 'night']);
+    const metaByCode = {};
+    for (const item of [...NIGHT_FALLBACK, ...(nightList?.items || [])]) metaByCode[item.code] = item;
+
+    // 依 kindId 分組請求；未知商品代號則三個 kindId 都查一次
+    const byKind = {};
+    for (const c of nightCodes) {
+      const kinds = metaByCode[c]?.kindId ? [metaByCode[c].kindId] : ['1', '4', '5'];
+      for (const k of kinds) (byKind[k] ||= []).push(c);
+    }
+
+    const next = (prevNight && typeof prevNight === 'object' && !('price' in prevNight)) ? { ...prevNight } : {};
+    // 移除已不在清單內的舊夜盤項目
+    for (const k of Object.keys(next)) if (!nightCodes.includes(k)) delete next[k];
+
+    const now = Date.now();
+    await Promise.all(Object.entries(byKind).map(async ([kindId, codes]) => {
+      try {
+        const res = await fetch(NIGHT_API, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            MarketType: '1', SymbolType: 'F', KindID: kindId, CID: '',
+            ExpireMonth: '', RowSize: '全部', PageNo: '', SortColumn: '', AscDesc: 'A'
+          }),
+          cache: 'no-store'
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const json = await res.json();
+        if (String(json.RtCode) !== '0') throw new Error(json.RtMsg || json.RtCode);
+        const list = json.RtData?.QuoteList || [];
+        for (const c of codes) {
+          const q = toNightQuote(list, nightCid(c), metaByCode[c]?.name);
+          if (q) next[c] = { ...q, updatedAt: now };
+          else if (metaByCode[c]?.kindId === kindId) delete next[c]; // 該商品無成交時不保留過期值
+        }
+      } catch (e) {
+        console.warn(`[台股跑馬燈] 夜盤 KindID=${kindId} 抓取失敗`, e);
+      }
+    }));
+
+    await chrome.storage.local.set({ night: next });
+    console.log('[台股跑馬燈] 夜盤已更新', Object.keys(next).length, '筆');
+  } catch (e) {
+    console.warn('[台股跑馬燈] 夜盤抓取失敗', e);
+  } finally {
+    nightBusy = false;
+  }
+}
+
 async function onTick() {
   fetchInstitutional();
+  fetchNight();
   if (isTradingTime()) return fetchQuotes();
   // 盤後：若上次是在盤中抓的（closed=false）、尚無資料或今天還沒抓過（如電腦睡眠過夜），補抓一次收盤價
   const { closed, updatedAt } = await chrome.storage.local.get(['closed', 'updatedAt']);
@@ -129,6 +230,7 @@ async function setup() {
   chrome.alarms.create(ALARM, { periodInMinutes: 1 });
   await fetchQuotes(); // 先取得 quoteDate，法人判斷才有依據
   fetchInstitutional();
+  fetchNight();
 }
 
 chrome.runtime.onInstalled.addListener(details => {
@@ -141,8 +243,9 @@ chrome.runtime.onInstalled.addListener(details => {
 chrome.runtime.onStartup.addListener(setup);
 chrome.alarms.onAlarm.addListener(a => { if (a.name === ALARM) onTick(); });
 chrome.storage.onChanged.addListener((changes, area) => {
-  if (area === 'sync' && changes.symbols) fetchQuotes();
+  if (area === 'sync' && changes.symbols) { fetchQuotes(); fetchNight(); }
   if (area === 'sync' && changes.afterHours) fetchInstitutional();
+  if (area === 'sync' && changes.nightFutures) fetchNight();
 });
 chrome.action.onClicked.addListener(() => {
   chrome.storage.local.set({ actionClickedAt: Date.now() }); // 新手教學用來判斷「從工具列開啟設定頁」任務是否完成

@@ -1,10 +1,10 @@
 {
   "manifest_version": 3,
   "name": "台股跑馬燈",
-  "version": "0.2.3",
+  "version": "0.3.0",
   "description": "在任何網頁上以跑馬燈輪播自選台股的即時股價與漲跌。",
   "permissions": ["storage", "alarms"],
-  "host_permissions": ["https://mis.twse.com.tw/*", "https://openapi.twse.com.tw/*", "https://www.tpex.org.tw/*"],
+  "host_permissions": ["https://mis.twse.com.tw/*", "https://openapi.twse.com.tw/*", "https://www.tpex.org.tw/*", "https://mis.taifex.com.tw/*"],
   "background": { "service_worker": "background.js" },
   "content_scripts": [
     {

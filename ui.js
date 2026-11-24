@@ -82,25 +82,60 @@ function save(patch) {
 
 // 依 data-key 自動綁定表單：textarea/text/color/checkbox/radio，變更即存
 function bindForm(root, onChange) {
-  chrome.storage.sync.get(DEFAULTS, s => {
+  let state = { ...DEFAULTS };
+  function apply(s) {
+    state = { ...DEFAULTS, ...s };
     root.querySelectorAll('[data-key]').forEach(el => {
       const k = el.dataset.key;
-      if (el.type === 'radio') el.checked = el.value === s[k];
-      else if (el.type === 'checkbox') el.checked = !!s[k];
-      else el.value = s[k];
-      const ev = el.tagName === 'TEXTAREA' ? 'input' : 'change';
-      el.addEventListener(ev, () => {
-        const v = el.type === 'checkbox' ? el.checked : el.value;
-        s[k] = v;
-        onChange && onChange(s);
-        // 文字欄位延遲儲存，避免每個按鍵都寫入 sync（有寫入頻率限制）
-        if (ev === 'input') {
-          clearTimeout(el._t);
-          el._t = setTimeout(() => save({ [k]: v }), 500);
-        } else save({ [k]: v });
-      });
+      if (el.type === 'radio') el.checked = el.value === state[k];
+      else if (el.type === 'checkbox') el.checked = !!state[k];
+      else el.value = state[k];
     });
-    onChange && onChange(s);
+    onChange && onChange(state);
+  }
+  root.querySelectorAll('[data-key]').forEach(el => {
+    const k = el.dataset.key;
+    const ev = el.tagName === 'TEXTAREA' ? 'input' : 'change';
+    el.addEventListener(ev, () => {
+      const v = el.type === 'checkbox' ? el.checked : el.value;
+      state[k] = v;
+      onChange && onChange(state);
+      // 文字欄位延遲儲存，避免每個按鍵都寫入 sync（有寫入頻率限制）
+      if (ev === 'input') {
+        clearTimeout(el._t);
+        el._t = setTimeout(() => save({ [k]: v }), 500);
+      } else save({ [k]: v });
+    });
+  });
+  const reload = () => chrome.storage.sync.get(DEFAULTS, apply);
+  reload();
+  return { reload, apply };
+}
+
+// 原生 <dialog> 確認視窗（支援 Esc 與鍵盤焦點管理，純文字呈現）
+function confirmModal(msg, okText = '確認', cancelText = '取消') {
+  const dlg = document.getElementById('confirmDialog');
+  if (!dlg) return Promise.resolve(false);
+  const msgEl = document.getElementById('dialogMsg');
+  const okBtn = document.getElementById('dialogOk');
+  const cancelBtn = document.getElementById('dialogCancel');
+  msgEl.textContent = msg;
+  okBtn.textContent = okText;
+  cancelBtn.textContent = cancelText;
+  return new Promise(resolve => {
+    const done = val => {
+      okBtn.removeEventListener('click', onOk);
+      cancelBtn.removeEventListener('click', onCancel);
+      dlg.removeEventListener('cancel', onCancel);
+      if (dlg.open) dlg.close();
+      resolve(val);
+    };
+    const onOk = () => done(true);
+    const onCancel = e => { if (e) e.preventDefault(); done(false); };
+    okBtn.addEventListener('click', onOk);
+    cancelBtn.addEventListener('click', onCancel);
+    dlg.addEventListener('cancel', onCancel);
+    dlg.showModal();
   });
 }
 
@@ -112,6 +147,64 @@ const LIST_URLS = [
 ];
 const LIST_TTL = 7 * 24 * 3600 * 1000;
 
+const NIGHT_API = 'https://mis.taifex.com.tw/futures/api/getQuoteList';
+const NIGHT_KINDS = ['1', '4', '5']; // 指數期貨、個股期貨、ETF 期貨
+
+// 由期交所 QuoteList 依商品分組，取近月 (-M) DispCName 去尾端數字＋「夜盤」；忽略 -P 現貨列
+function buildNightList(kindResults) {
+  const seen = new Set();
+  const out = [];
+  for (const { kindId, rows } of kindResults || []) {
+    let curCid = '';
+    const groups = new Map();
+    for (const m of rows || []) {
+      const sid = String(m?.SymbolID || '');
+      if (sid.endsWith('-P')) { curCid = sid.slice(0, -2); continue; }
+      if (!sid.endsWith('-M')) continue;
+      const cid = (curCid && (sid.startsWith(curCid) || (curCid === 'MXF' && /^MX\d/.test(sid))))
+        ? curCid : sid.replace(/[A-L]\d-M$/, '');
+      if (!cid) continue;
+      if (!groups.has(cid)) groups.set(cid, []);
+      groups.get(cid).push(m);
+    }
+    for (const [cid, ms] of groups) {
+      const code = 'N' + cid;
+      if (seen.has(code)) continue;
+      const picked = ms.find(m => String(m.SymbolID || '').startsWith(cid)) || ms[0];
+      const base = String(picked?.DispCName || '').replace(/\d+$/, '');
+      if (!base) continue;
+      seen.add(code);
+      out.push({ code, name: `${base}夜盤`, kindId });
+    }
+  }
+  return out;
+}
+
+// 取得夜盤候選清單；快取 7 天，失敗沿用舊快取，無快取退回 NIGHT_FALLBACK
+async function loadNightList() {
+  const { nightList } = await chrome.storage.local.get('nightList');
+  if (nightList && Date.now() - nightList.updatedAt < LIST_TTL && nightList.items?.length) return nightList.items;
+  const res = await Promise.allSettled(NIGHT_KINDS.map(kindId =>
+    fetch(NIGHT_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        MarketType: '1', SymbolType: 'F', KindID: kindId, CID: '',
+        ExpireMonth: '', RowSize: '全部', PageNo: '', SortColumn: '', AscDesc: 'A'
+      })
+    }).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(j => {
+        if (String(j.RtCode) !== '0') throw new Error(j.RtMsg || j.RtCode);
+        return { kindId, rows: j.RtData?.QuoteList || [] };
+      })
+  ));
+  const items = buildNightList(res.filter(r => r.status === 'fulfilled').map(r => r.value));
+  if (!items.length) return nightList?.items?.length ? nightList.items : NIGHT_FALLBACK;
+  if (res.every(r => r.status === 'fulfilled')) {
+    await chrome.storage.local.set({ nightList: { items, updatedAt: Date.now() } });
+  }
+  return items;
+}
 // 取得 [[代號, 名稱], ...]；快取 7 天，抓取失敗時沿用舊快取
 async function loadStockList() {
   const { stockList } = await chrome.storage.local.get('stockList');
@@ -184,13 +277,15 @@ function initStockPicker(root) {
   const listEl = root.querySelector('[role="listbox"]');
   const listOl = root.querySelector('.stock-list');
   const statusEl = root.querySelector('.picker-status');
-  let items = Object.entries(INDEX_NAMES);
+  let items = [...Object.entries(INDEX_NAMES), ...NIGHT_FALLBACK.map(x => [x.code, x.name])];
   const names = { ...INDEX_NAMES };
+  for (const x of NIGHT_FALLBACK) names[x.code] = x.name;
   let codes = [];
+  let nightOn = DEFAULTS.nightFutures;
   let results = [];
   let active = -1;
 
-  const label = c => (INDEX_NAMES[c] ? INDEX_NAMES[c] : names[c] ? `${names[c]} ${c}` : c);
+  const label = c => (INDEX_NAMES[c] ? INDEX_NAMES[c] : isNightCode(c) ? (names[c] || c) : names[c] ? `${names[c]} ${c}` : c);
 
   let dragFrom = -1;
 
@@ -215,15 +310,24 @@ function initStockPicker(root) {
     if (!codes.length) return listOl.replaceChildren(el('li', 'helper', '尚未加入任何股票'));
     listOl.replaceChildren(...codes.map((c, i) => {
       const name = label(c);
-      const li = el('li', 'stock-row');
+      const isNight = isNightCode(c);
+      const li = el('li', isNight && !nightOn ? 'stock-row is-off' : 'stock-row');
       li.draggable = true;
       const handle = el('span', 'drag-handle');
       handle.innerHTML = icon('grip');
       handle.title = '拖曳調整順序';
+      const nameEl = el('span', 'row-name');
+      nameEl.append(name);
+      if (isNight) {
+        nameEl.append(
+          el('span', 'row-badge', '夜盤'),
+          el('span', 'row-sub', nightOn ? '僅 15:00～隔日 05:00 顯示' : '夜盤已關閉')
+        );
+      }
       li.append(
         handle,
         el('span', 'row-no', String(i + 1)),
-        el('span', 'row-name', name),
+        nameEl,
         rowButton('up', 'arrowUp', `上移 ${name}`, () => move(i, i - 1, 'up'), i === 0),
         rowButton('down', 'arrowDown', `下移 ${name}`, () => move(i, i + 1, 'down'), i === codes.length - 1),
         rowButton('remove', 'x', `移除 ${name}`, () => remove(c), false)
@@ -273,9 +377,17 @@ function initStockPicker(root) {
     renderSelected();
   }
 
-  function add(code) {
+  async function add(code) {
     const c = parseSymbols(code)[0];
     if (!c) return;
+    if (isNightCode(c) && !nightOn && !codes.includes(c)) {
+      const ok = await confirmModal('夜盤開關尚未開啟，要開啟並加入嗎？', '開啟並加入', '取消');
+      if (!ok) return;
+      nightOn = true;
+      const cb = document.querySelector('[data-key="nightFutures"]');
+      if (cb) cb.checked = true;
+      save({ nightFutures: true });
+    }
     if (!codes.includes(c)) codes.push(c);
     persist();
     input.value = '';
@@ -304,7 +416,7 @@ function initStockPicker(root) {
       li.setAttribute('role', 'option');
       li.setAttribute('aria-selected', String(i === active));
       const left = el('span', 'opt-main');
-      left.append(el('span', 'opt-name'), el('span', 'code', INDEX_NAMES[r.code] ? '指數' : r.code));
+      left.append(el('span', 'opt-name'), el('span', 'code', INDEX_NAMES[r.code] ? '指數' : isNightCode(r.code) ? '夜盤' : r.code));
       left.firstChild.append(highlight(r.name, q));
       li.append(left);
       if (codes.includes(r.code)) li.append(el('span', 'added', '已加入'));
@@ -345,19 +457,34 @@ function initStockPicker(root) {
 
   input.addEventListener('blur', () => setTimeout(close, 120));
 
-  chrome.storage.sync.get({ symbols: DEFAULTS.symbols }, s => {
-    codes = parseSymbols(s.symbols);
+  function reload() {
+    chrome.storage.sync.get({ symbols: DEFAULTS.symbols, nightFutures: DEFAULTS.nightFutures }, s => {
+      codes = parseSymbols(s.symbols);
+      nightOn = !!s.nightFutures;
+      renderSelected();
+    });
+  }
+  reload();
+
+  // 先從 nightList 快取補上已知夜盤名稱，避免候選清單抓回來前只顯示代號
+  chrome.storage.local.get('nightList', ({ nightList }) => {
+    for (const x of nightList?.items || []) names[x.code] = x.name;
     renderSelected();
   });
 
+  const nightCb = document.querySelector('[data-key="nightFutures"]');
+  if (nightCb) nightCb.addEventListener('change', () => { nightOn = nightCb.checked; renderSelected(); });
+
   statusEl.textContent = '正在載入股票清單…';
-  loadStockList().then(list => {
-    items = [...Object.entries(INDEX_NAMES), ...list];
-    for (const [c, n] of list) names[c] = n;
+  Promise.all([loadStockList(), loadNightList()]).then(([list, nightItems]) => {
+    const nightPairs = nightItems.map(x => [x.code, x.name]);
+    items = [...Object.entries(INDEX_NAMES), ...nightPairs, ...list];
+    for (const [c, n] of [...nightPairs, ...list]) names[c] = n;
     renderSelected();
     statusEl.textContent = list.length
-      ? `可搜尋 ${list.length.toLocaleString()} 檔上市櫃股票與 ETF，用方向鍵選擇、Enter 加入`
+      ? `可搜尋 ${list.length.toLocaleString()} 檔上市櫃股票與 ETF（含 ${nightPairs.length} 項夜盤），用方向鍵選擇、Enter 加入`
       : '股票清單載入失敗，仍可直接輸入代號後按 Enter 加入';
     if (input.value) input.dispatchEvent(new Event('input'));
   });
+  return { reload };
 }

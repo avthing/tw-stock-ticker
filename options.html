@@ -103,6 +103,15 @@
           <input type="checkbox" data-key="afterHours" aria-labelledby="h-after">
           <span class="track" aria-hidden="true"></span>
         </label>
+        <label class="row switch">
+          <span class="row-icon" data-icon="moon"></span>
+          <span class="row-text">
+            <span class="row-title" id="h-night">顯示夜盤</span>
+            <span class="row-desc">夜盤時段（15:00～隔日 05:00）顯示清單中的夜盤項目</span>
+          </span>
+          <input type="checkbox" data-key="nightFutures" aria-labelledby="h-night">
+          <span class="track" aria-hidden="true"></span>
+        </label>
       </div>
     </section>
 
@@ -114,7 +123,28 @@
         <textarea id="excluded" data-key="excluded" rows="4"></textarea>
       </div>
     </section>
+
+    <section class="group" aria-labelledby="h-backup">
+      <h2 id="h-backup" data-icon="settings">備份與多台電腦同步</h2>
+      <p class="desc">已登入 Chrome 並開啟同步時，設定會自動同步；匯出／匯入可用於未登入、不同瀏覽器或備份。</p>
+      <div class="panel pad">
+        <div class="backup-actions">
+          <button type="button" id="exportBtn" class="btn">匯出設定</button>
+          <button type="button" id="importBtn" class="btn">匯入設定</button>
+          <input type="file" id="importFile" accept=".json,application/json" hidden>
+        </div>
+        <div id="backupMsg" class="backup-msg" role="status" aria-live="polite"></div>
+      </div>
+    </section>
   </main>
+
+  <dialog id="confirmDialog" class="dialog" aria-labelledby="dialogMsg">
+    <p id="dialogMsg" class="dialog-msg"></p>
+    <div class="dialog-actions">
+      <button type="button" id="dialogCancel" class="btn">取消</button>
+      <button type="button" id="dialogOk" class="btn primary">確認</button>
+    </div>
+  </dialog>
 
   <script src="defaults.js"></script>
   <script src="ui.js"></script>

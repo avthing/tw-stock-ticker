@@ -5,7 +5,7 @@
   const FLAT = { text: '#616161', bg: '#F2F2F2' };
 
   let settings = await chrome.storage.sync.get(DEFAULTS);
-  let data = await chrome.storage.local.get({ quotes: [], index: null, closed: false, error: null, updatedAt: 0, minimized: false, quoteDate: null, inst: null });
+  let data = await chrome.storage.local.get({ quotes: [], index: null, closed: false, error: null, updatedAt: 0, minimized: false, quoteDate: null, inst: null, night: null });
 
   let host = null;
   let renderedKey = ''; // 上次 render 時的盤後狀態，用來判斷狀態是否需要重畫
@@ -27,7 +27,7 @@
     .bar.inst .track { animation: none; width: 100%; }
     .bar.inst .group { margin: 0 auto; flex: none; }
     .bar.inst .group:empty { display: none; }
-    .bar.inst .total { font-weight: 700; border-left: 1px solid #ddd; }
+    .bar .total { font-weight: 700; border-left: 1px solid #ddd; }
     .bar:hover .track { animation-play-state: paused; }
     .group { display: flex; align-items: center; gap: 8px; padding: 0 4px; box-sizing: border-box; }
     .bar.v .group { flex-direction: column; align-items: stretch; padding: 3px 6px; gap: 6px; }
@@ -78,7 +78,7 @@
     const item = el('span', 'item');
     item.style.background = c.bg;
     item.style.color = c.text;
-    const label = { t00: '加權指數', o00: '櫃買指數' }[q.code] || `${q.name} ${q.code}`;
+    const label = { t00: '加權指數', o00: '櫃買指數' }[q.code] || (isNightCode(q.code) ? q.name : `${q.name} ${q.code}`);
     const arrow = q.change > 0 ? '▲' : q.change < 0 ? '▼' : '－';
     const sign = q.change > 0 ? '+' : '';
     item.append(
@@ -98,7 +98,24 @@
     return !!data.inst && data.inst.date === taipeiDate();
   }
 
-  const modeKey = () => `${afterMode()}|${instReady()}`;
+  function getNightMap() {
+    const n = data.night;
+    return n && typeof n === 'object' && !('price' in n) ? n : {};
+  }
+
+  function freshNightList() {
+    if (!settings.nightFutures) return [];
+    const map = getNightMap();
+    return parseSymbols(settings.symbols)
+      .filter(c => isNightCode(c) && isNightFresh(map[c]))
+      .map(c => map[c]);
+  }
+
+  function nightReady() {
+    return freshNightList().length > 0;
+  }
+
+  const modeKey = () => `${afterMode()}|${instReady()}|${nightReady()}`;
 
   const INST_LABEL = { foreign: '外資', trust: '投信', dealer: '自營商', total: '合計' };
 
@@ -126,24 +143,47 @@
   function fillQuotes() {
     if (!ui) return;
     const quotes = data.quotes || [];
-    const hasSymbols = parseSymbols(settings.symbols).length > 0;
-    const showInst = afterMode() && instReady();
-    ui.bar.classList.toggle('inst', showInst);
-    const make = () => showInst ? buildInstItems() : quotes.length ? quotes.map(buildItem) : [el('span', 'item', hasSymbols ? '載入行情中…' : '尚未設定自選股，點工具列圖示設定')];
+    const codes = parseSymbols(settings.symbols);
+    const hasSymbols = codes.length > 0;
+    const after = afterMode();
+    const showInst = after && instReady();
+    const nightItems = freshNightList();
+    const showNight = nightItems.length > 0;
+    // 盤後只有法人（無夜盤）才固定置中；有夜盤時一律整條跑馬燈循環捲動
+    const staticMode = after && showInst && !showNight;
+    ui.bar.classList.toggle('inst', staticMode);
+    const make = () => {
+      if (after && showNight) {
+        const list = nightItems.map(buildItem);
+        return showInst ? [...list, ...buildInstItems()] : list;
+      }
+      if (showInst) return buildInstItems();
+      const byCode = Object.fromEntries(quotes.map(q => [q.code, q]));
+      const nightMap = getNightMap();
+      const items = [];
+      for (const c of codes) {
+        if (isNightCode(c)) {
+          if (settings.nightFutures && isNightFresh(nightMap[c])) items.push(buildItem(nightMap[c]));
+        } else if (byCode[c]) {
+          items.push(buildItem(byCode[c]));
+        }
+      }
+      return items.length ? items : [el('span', 'item', hasSymbols ? '載入行情中…' : '尚未設定自選股，點工具列圖示設定')];
+    };
     // 股票少時重複內容直到填滿可視區，避免捲動出現大片空白
     const [g0, g1] = ui.groups;
     g0.replaceChildren(...make());
     const vpSize = () => ui.vertical ? ui.viewport.clientHeight : ui.viewport.clientWidth;
     const gSize = () => ui.vertical ? g0.offsetHeight : g0.offsetWidth;
-    if (!showInst) {
+    if (!staticMode) {
       for (let i = 0; i < 20 && gSize() > 0 && gSize() < vpSize(); i++) g0.append(...make());
       g1.replaceChildren(...[...g0.children].map(n => n.cloneNode(true)));
     } else {
       g1.replaceChildren();
     }
     const t = data.updatedAt ? new Date(data.updatedAt).toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit', hour12: false }) : '';
-    ui.status.textContent = showInst ? '盤後' : data.error ? '資料延遲' : data.closed ? '收盤' : t ? `${t} 更新` : '';
-    ui.status.title = showInst ? '' : data.error || '';
+    ui.status.textContent = showInst ? '盤後' : (after && showNight) ? '夜盤' : data.error ? '資料延遲' : data.closed ? '收盤' : t ? `${t} 更新` : '';
+    ui.status.title = (showInst || (after && showNight)) ? '' : data.error || '';
     updateTint();
     requestAnimationFrame(updateDuration);
   }
@@ -172,7 +212,7 @@
     teardown();
     renderedKey = modeKey();
     if (isExcludedHost(location.hostname, settings.excluded)) return;
-    if (afterMode() && !instReady()) return; // 盤後等法人資料公布期間：完全不顯示
+    if (afterMode() && !instReady() && !nightReady()) return; // 盤後等法人資料公布期間：無夜盤時完全不顯示
 
     host = document.createElement('div');
     host.id = 'tw-ticker-host';

@@ -1,3 +1,17 @@
 *.zip
 Thumbs.db
 .DS_Store
+
+# 公開 repo：本機工具資料與內部紀錄一律不推
+.hallmark/
+.serena/
+.claude/
+docs/
+store/images/raw/
+
+# 憑證與環境變數
+.env
+.env.*
+*.pem
+*.key
+.dev.vars
